@@ -1,3 +1,5 @@
+import token
+
 buffer = ""
 buffer_size = 0
 begin_pointer = 0
@@ -7,7 +9,9 @@ number_of_line = 1
 letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 digit = "0123456789"
 whitespace = "\n\f\r\v\t "
-p_symbols = ";:,[](){}+-*<"
+p_symbols = ";:,[](){}+-<"
+domain = letters + digit + whitespace + p_symbols + "*=/"
+
 other = "other"
 keywords = ["if", "else", "void", "int", "while", "break", "switch", "default", "case", "return", "endif"]
 
@@ -20,6 +24,7 @@ class Token:
     KEYWORD = "KEYWORD"
     COMMENT = "COMMENT"
     WHITE_SPACE = "WHITESPACE"
+    ERROR = "ERROR"
 
 
 class State:
@@ -42,7 +47,7 @@ class State:
 
     def add_all_states(self, states: dict, not_split_keys=None):
         if not_split_keys is None:
-            not_split_keys = ["other"]
+            not_split_keys = ["other", "EOF"]
         for key in states:
             self._add_dest_state(key, states[key], key not in not_split_keys)
 
@@ -65,7 +70,7 @@ class State:
 
 class ErrorState(State):
     def __init__(self, message):
-        super(State, self).__init__()
+        super(ErrorState, self).__init__(False, Token.ERROR)
         self.message = message
 
 
@@ -73,9 +78,9 @@ def initial_input_file():
     initial_DFA()
     global buffer, forward_pointer, buffer_size
     input_file = open("input.txt", 'r')
-    token_file = open("tokens.txt", 'w')
-    lexeme_error_file = open("lexical_errors.txt", 'w')
-    symbol_table_file = open("symbol_table.txt", 'w')
+    # token_file = open("tokens.txt", 'w')
+    # lexeme_error_file = open("lexical_errors.txt", 'w')
+    # symbol_table_file = open("symbol_table.txt", 'w')
     buffer = input_file.read()
     buffer_size = len(buffer)
     while forward_pointer < buffer_size:
@@ -85,22 +90,32 @@ def initial_input_file():
 def initial_DFA():
     start_state = State()
 
+    # error states
+    invalid_input_error = ErrorState("Invalid input")
+    unclosed_comment_error = ErrorState("Unclosed comment")
+    unmatched_comment_error = ErrorState("Unmatched comment")
+    invalid_number_error = ErrorState("Invalid number")
+
     # digit
     digit_state1 = State()
     digit_state2 = State(True, Token.NUMBER)
-    digit_state1.add_all_states({digit: digit_state1, other: digit_state2})
+    digit_state1.add_all_states({digit: digit_state1, letters: invalid_number_error, other: digit_state2})
 
     # letter (id & keyword)
     letter_state1 = State()
     letter_state2 = State(True, Token.LETTER)
     letter_state1.add_all_states({letters: letter_state1, other: letter_state2})
 
-    # symbol, p-symbols = {all except ==, =, /}
+    # symbol, p-symbols = {all except ==, =, /, *}
     symbol_state1 = State(False, Token.SYMBOL)
-    symbol_state2 = State()
-    symbol_state3 = State(False, Token.SYMBOL)
-    symbol_state4 = State(True, Token.SYMBOL)
+    symbol_state2 = State()  # =
+    symbol_state3 = State(False, Token.SYMBOL)  # return ==
+    symbol_state4 = State(True, Token.SYMBOL)  # return =
     symbol_state2.add_all_states({"=": symbol_state3, other: symbol_state4})
+
+    symbol_state5 = State()  # *
+    symbol_state6 = State(True, Token.SYMBOL)
+    symbol_state5.add_all_states({"/": unmatched_comment_error, other: symbol_state6})
 
     # whitespace
     whitespace1 = State()
@@ -108,17 +123,20 @@ def initial_DFA():
     whitespace1.add_all_states({whitespace: whitespace1, other: whitespace2})
 
     # comment
-    comment_state1 = State()
-    comment_state2 = State(False, Token.SYMBOL)
-    comment_state3 = State()
-    comment_state4 = State()
-    comment_state5 = State()
-    comment_state6 = State(True, Token.COMMENT)
+    comment_state1 = State()  # /
+    comment_state2 = State(True, Token.SYMBOL)  # / divide
+    comment_state3 = State()  # /*
+    comment_state4 = State()  # /* *
+    comment_state5 = State(False, Token.COMMENT)
+    comment_state6 = State()  # //
 
     comment_state1.add_all_states({"/": comment_state6, "*": comment_state3, other: comment_state2})
+
+    comment_state3.add_all_states({"*": comment_state4, "EOF": unclosed_comment_error, other: comment_state3})
+    comment_state4.add_all_states(
+        {"*": comment_state4, "/": comment_state5, "EOF": unclosed_comment_error, other: comment_state3})
+
     comment_state6.add_all_states({"\n": comment_state5, "EOF": comment_state5, other: comment_state6})
-    comment_state3.add_all_states({"*": comment_state4, other: comment_state3})
-    comment_state4.add_all_states({"*": comment_state4, "/": comment_state5, other: comment_state3})
 
     # initial start state
     start_state.add_all_states(
@@ -129,6 +147,8 @@ def initial_DFA():
             letters: letter_state1,
             p_symbols: symbol_state1,
             "=": symbol_state2,
+            "*": symbol_state5,
+            other: invalid_input_error
         }
     )
 
@@ -141,9 +161,9 @@ def reset_pointers():
 
 def get_next_token():
     global forward_pointer, begin_pointer, number_of_line
-    temp_state = State.start_state
+    current_state = State.start_state
 
-    while not temp_state.is_final():
+    while not current_state.is_final():
         if forward_pointer == len(buffer):
             char = "EOF"
         else:
@@ -151,16 +171,23 @@ def get_next_token():
 
         if char == "\n":
             number_of_line += 1
-        temp_state = temp_state.move(char)
+            print()
+            print(str(number_of_line) + " : ", end=" ")
+        current_state = current_state.move(char)
         forward_pointer += 1
     forward_pointer -= 1
 
-    if temp_state.should_back:
+    if current_state.should_back:
         forward_pointer -= 1
 
     lexeme = buffer[begin_pointer:forward_pointer + 1]
     reset_pointers()
-    print(lexeme + ":" + temp_state.token)
+    if current_state.token == Token.ERROR:
+        if len(lexeme) > 7:
+            lexeme = lexeme[:7] + "..."
+        print("(Error " + current_state.message + " : " + lexeme + ")", end=" ")
+    elif current_state.token != Token.WHITE_SPACE and current_state.token != Token.COMMENT:
+        print("(" + current_state.token + ":" + lexeme + ")", end=" ")
 
 
 def get_letter_token(lexeme):
