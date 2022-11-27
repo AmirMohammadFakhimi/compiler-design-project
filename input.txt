@@ -1,25 +1,16 @@
-int func (int a, int b){
-	int a = 10;
-int b = 100;
-
-outpt(1000);
-
-if(a > 1000){
-return a;
+int f(int a){
+return a * a * a;
+}
+void main(void){
+int a;
+int b;
+a = 8;
+if (b < 5) {
+a = f(a);
+}
+else{
+a = 4;
 }
 
-while (b < 10000){
-b = bc!e * a;
-
+break;
 }
-
-return b;
-
-}
-
-void main (void){
-int var = f(10, 5);
-return 0;
-
-}
-// salam

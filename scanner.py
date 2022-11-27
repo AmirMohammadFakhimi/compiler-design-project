@@ -15,11 +15,12 @@ keywords = ["if", "else", "void", "int", "while", "break", "switch", "default", 
 
 symbol_table_set = set()
 symbol_table = []
+tokens: dict[int, list[(str, str)]] = dict()
 
 
 class Token:
     LETTER = "LETTER"
-    NUMBER = "NUMBER"
+    NUMBER = "NUM"
     SYMBOL = "SYMBOL"
     ID = "ID"
     KEYWORD = "KEYWORD"
@@ -86,7 +87,6 @@ def run_scanner():
     input_file = open("input.txt", 'r')
     # token_file = open("tokens.txt", 'w')
     # lexeme_error_file = open("lexical_errors.txt", 'w')
-    # symbol_table_file = open("symbol_table.txt", 'w')
     buffer = input_file.read()
     buffer_size = len(buffer)
     while True:
@@ -95,8 +95,7 @@ def run_scanner():
             break
         else:
             (current_token, lexeme) = next_token
-        if current_token == Token.ID or current_token == Token.KEYWORD:
-            symbol_id = add_to_symbol_table(lexeme)
+            handle_output_token(current_token, lexeme)
 
 
 def initial_DFA():
@@ -203,7 +202,7 @@ def get_next_token():
     if current_state.token == Token.ERROR:
         if len(lexeme) > 7:
             lexeme = lexeme[:7] + "..."
-        # print("(Error " + current_state.message + " : " + lexeme + ")", end=" ")
+        print("(Error " + current_state.message + " : " + lexeme + ")", end=" ")
         return get_next_token()
     elif current_state.token == Token.WHITE_SPACE or current_state.token == Token.COMMENT:
         return get_next_token()
@@ -222,6 +221,13 @@ def get_letter_token(lexeme):
         return Token.ID
 
 
+def handle_output_token(current_token, lexeme):
+    add_to_tokens(current_token, lexeme)
+
+    if current_token == Token.ID or current_token == Token.KEYWORD:
+        symbol_id = add_to_symbol_table(lexeme)
+
+
 def add_to_symbol_table(lexeme) -> int:
     global symbol_table_set, symbol_table
     if lexeme not in symbol_table_set:
@@ -229,3 +235,10 @@ def add_to_symbol_table(lexeme) -> int:
         symbol_table_set.add(lexeme)
 
     return len(symbol_table)
+
+
+def add_to_tokens(current_token, lexeme):
+    if number_of_line not in tokens:
+        tokens[number_of_line] = []
+
+    tokens[number_of_line].append((current_token, lexeme))
