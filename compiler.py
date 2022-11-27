@@ -37,5 +37,5 @@ def create_file_from_dict(file, dictionary, write_on_empty_dict=None):
 
 
 if __name__ == '__main__':
-    scanner.run_scanner()
+    scanner.run_scanner("input.txt")
     create_files()

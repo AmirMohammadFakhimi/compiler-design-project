@@ -13,8 +13,8 @@ domain = letters + digit + whitespace + p_symbols + "*=/"
 other = "other"
 keywords = ["if", "else", "void", "int", "while", "break", "switch", "default", "case", "return", "endif"]
 
-symbol_table_set = set()
-symbol_table = []
+symbol_table_set = {"if", "else", "void", "int", "while", "break", "switch", "default", "case", "return", "endif"}
+symbol_table = ["if", "else", "void", "int", "while", "break", "switch", "default", "case", "return", "endif"]
 tokens: dict[int, list[(str, str)]] = dict()
 errors: dict[int, list[(str, str)]] = dict()
 
@@ -82,10 +82,10 @@ class ErrorState(State):
             ErrorState.invalid_input_error = self
 
 
-def run_scanner():
+def run_scanner(file_name):
     initial_DFA()
     global buffer, forward_pointer, buffer_size
-    input_file = open("input.txt", 'r')
+    input_file = open(file_name, 'r')
     buffer = input_file.read()
     buffer_size = len(buffer)
     while True:
@@ -104,7 +104,7 @@ def initial_DFA():
     unclosed_comment_error = ErrorState("unclosed_comment_error", "Unclosed comment")
     unmatched_comment_error = ErrorState("unmatched_comment_error", "Unmatched comment")
     invalid_number_error = ErrorState("invalid_number_error", "Invalid number")
-    invalid_input_error = ErrorState("invalid_input_error", "Invalid input")
+    ErrorState("invalid_input_error", "Invalid input")
 
     # digit
     digit_state1 = State("digit_state1")
@@ -181,12 +181,8 @@ def get_next_token():
             char = "EOF"
         else:
             char = buffer[forward_pointer]
-        if char == "\n":
-            number_of_line += 1
 
         if char not in domain and char != "EOF":
-            if current_state.name == "whitespace1":
-                begin_pointer = forward_pointer
 
             if current_state.name != "comment_state3" and current_state.name != "comment_state4" and current_state.name != "comment_state6":
                 current_state = ErrorState.invalid_input_error
@@ -198,17 +194,21 @@ def get_next_token():
 
     if current_state.should_back:
         forward_pointer -= 1
-        if char is not None and char == "\n":
-            number_of_line -= 1
 
     lexeme = buffer[begin_pointer:forward_pointer + 1]
+    number_of_line += lexeme.count("\n")
     reset_pointers()
     if current_state.token == Token.ERROR:
-        if len(lexeme) > 7:
-            lexeme = lexeme[:7] + "..."
-
-        # errors.append((number_of_line, lexeme, current_state.message))
-        add_to_dict(errors, lexeme, current_state.message)
+        if current_state.name == "unclosed_comment_error":
+            error_line = number_of_line - lexeme.count("\n")
+            lexeme = lexeme.strip()
+            if len(lexeme) > 7:
+                lexeme = lexeme[:7] + "..."
+            add_to_error_dict(error_line, lexeme, current_state.message)
+        else:
+            if current_state.name == "invalid_input_error":
+                lexeme = lexeme.strip()
+            add_to_error_dict(number_of_line, lexeme, current_state.message)
 
         return get_next_token()
     elif current_state.token == Token.WHITE_SPACE or current_state.token == Token.COMMENT:
@@ -217,7 +217,6 @@ def get_next_token():
         current_token: str = current_state.token
         if current_token == Token.LETTER:
             current_token = get_letter_token(lexeme)
-        print("(" + current_token + " : " + lexeme + ")", end="\n")
         return current_token, lexeme
 
 
@@ -232,20 +231,27 @@ def handle_output_token(current_token, lexeme):
     add_to_dict(tokens, current_token, lexeme)
 
     if current_token == Token.ID or current_token == Token.KEYWORD:
-        symbol_id = add_to_symbol_table(lexeme)
+        add_to_symbol_table(lexeme)
 
 
-def add_to_symbol_table(lexeme) -> int:
+def add_to_symbol_table(lexeme):
     global symbol_table_set, symbol_table
     if lexeme not in symbol_table_set:
         symbol_table.append(lexeme)
         symbol_table_set.add(lexeme)
 
-    return len(symbol_table)
-
 
 def add_to_dict(dictionary, key, value):
+    global number_of_line
     if number_of_line not in dictionary:
         dictionary[number_of_line] = []
 
     dictionary[number_of_line].append((key, value))
+
+
+def add_to_error_dict(number_line, key, value):
+    global errors
+    if number_line not in errors:
+        errors[number_line] = []
+
+    errors[number_line].append((key, value))
