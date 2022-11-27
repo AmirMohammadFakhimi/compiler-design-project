@@ -160,7 +160,7 @@ def reset_pointers():
 
 
 def get_next_token():
-    global forward_pointer, begin_pointer, number_of_line,domain
+    global forward_pointer, begin_pointer, number_of_line
     current_state = State.start_state
 
     while not current_state.is_final():
@@ -168,10 +168,6 @@ def get_next_token():
             char = "EOF"
         else:
             char = buffer[forward_pointer]
-            if char not in domain:
-                # TODO invalid input state error
-                pass
-
 
         if char == "\n":
             number_of_line += 1
@@ -190,12 +186,8 @@ def get_next_token():
         if len(lexeme) > 7:
             lexeme = lexeme[:7] + "..."
         print("(Error " + current_state.message + " : " + lexeme + ")", end=" ")
-        get_next_token()
     elif current_state.token != Token.WHITE_SPACE and current_state.token != Token.COMMENT:
-        current_token = current_state.token
-        if current_token == Token.LETTER:
-            current_token = get_letter_token(lexeme)
-        return current_token, lexeme
+        print("(" + current_state.token + ":" + lexeme + ")", end=" ")
 
 
 def get_letter_token(lexeme):
@@ -204,5 +196,7 @@ def get_letter_token(lexeme):
     else:
         return Token.ID
 
-def panic():
-    reset_pointers()
+
+def save_token(lexeme, token):
+    if token != token.WHITE_SPACE and token != token.COMMENT:
+        pass
