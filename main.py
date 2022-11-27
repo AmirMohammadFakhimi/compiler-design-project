@@ -4,6 +4,7 @@ import scanner
 def create_files():
     create_symbol_table_file()
     create_tokens_file()
+    create_errors_file()
 
 
 def create_symbol_table_file():
@@ -33,6 +34,11 @@ def create_tokens_file():
 
         tokens_file.write("\n")
 
+def create_errors_file():
+    tokens_file = open("lexical_errors.txt", 'w')
+
+    for (line_number, lexeme, error_message) in scanner.errors:
+        tokens_file.write(f'{line_number}.\t({lexeme}, {error_message}) \n')
 
 if __name__ == '__main__':
     scanner.run_scanner()

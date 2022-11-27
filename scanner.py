@@ -16,6 +16,7 @@ keywords = ["if", "else", "void", "int", "while", "break", "switch", "default", 
 symbol_table_set = set()
 symbol_table = []
 tokens: dict[int, list[(str, str)]] = dict()
+errors: list[(str, str, str)] = []
 
 
 class Token:
@@ -85,8 +86,6 @@ def run_scanner():
     initial_DFA()
     global buffer, forward_pointer, buffer_size
     input_file = open("input.txt", 'r')
-    # token_file = open("tokens.txt", 'w')
-    # lexeme_error_file = open("lexical_errors.txt", 'w')
     buffer = input_file.read()
     buffer_size = len(buffer)
     while True:
@@ -184,8 +183,6 @@ def get_next_token():
             char = buffer[forward_pointer]
         if char == "\n":
             number_of_line += 1
-            # print()
-            # print(str(number_of_line) + " : ", end=" ")
         if char not in domain and char != "EOF":
             if current_state.name != "comment_state3" and current_state.name != "comment_state4":
                 current_state = ErrorState.invalid_input_error
@@ -202,7 +199,7 @@ def get_next_token():
     if current_state.token == Token.ERROR:
         if len(lexeme) > 7:
             lexeme = lexeme[:7] + "..."
-        print("(Error " + current_state.message + " : " + lexeme + ")", end=" ")
+        errors.append((number_of_line, lexeme, current_state.message))
         return get_next_token()
     elif current_state.token == Token.WHITE_SPACE or current_state.token == Token.COMMENT:
         return get_next_token()
