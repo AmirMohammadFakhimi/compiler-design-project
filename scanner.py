@@ -1,4 +1,5 @@
 import token
+from secrets import compare_digest
 
 buffer = ""
 buffer_size = 0
@@ -14,6 +15,9 @@ domain = letters + digit + whitespace + p_symbols + "*=/"
 
 other = "other"
 keywords = ["if", "else", "void", "int", "while", "break", "switch", "default", "case", "return", "endif"]
+
+symbol_table_set = set()
+symbol_table = []
 
 
 class Token:
@@ -84,7 +88,10 @@ def initial_input_file():
     buffer = input_file.read()
     buffer_size = len(buffer)
     while forward_pointer < buffer_size:
-        get_next_token()
+        (current_token, lexeme) = get_next_token()
+
+        if current_token == Token.SYMBOL or current_token == Token.KEYWORD:
+            symbol_id = add_to_symbol_table(lexeme)
 
 
 def initial_DFA():
@@ -127,8 +134,9 @@ def initial_DFA():
     comment_state2 = State(True, Token.SYMBOL)  # / divide
     comment_state3 = State()  # /*
     comment_state4 = State()  # /* *
-    comment_state5 = State(False, Token.COMMENT)
+    comment_state5 = State(False, Token.COMMENT)  # /* */
     comment_state6 = State()  # //
+    comment_state7 = State(True, Token.COMMENT)  # // (\n | EOF)
 
     comment_state1.add_all_states({"/": comment_state6, "*": comment_state3, other: comment_state2})
 
@@ -136,7 +144,7 @@ def initial_DFA():
     comment_state4.add_all_states(
         {"*": comment_state4, "/": comment_state5, "EOF": unclosed_comment_error, other: comment_state3})
 
-    comment_state6.add_all_states({"\n": comment_state5, "EOF": comment_state5, other: comment_state6})
+    comment_state6.add_all_states({"\n": comment_state7, "EOF": comment_state7, other: comment_state6})
 
     # initial start state
     start_state.add_all_states(
@@ -182,12 +190,16 @@ def get_next_token():
 
     lexeme = buffer[begin_pointer:forward_pointer + 1]
     reset_pointers()
-    if current_state.token == Token.ERROR:
+    if compare_digest(current_state.token, Token.ERROR):
         if len(lexeme) > 7:
             lexeme = lexeme[:7] + "..."
         print("(Error " + current_state.message + " : " + lexeme + ")", end=" ")
-    elif current_state.token != Token.WHITE_SPACE and current_state.token != Token.COMMENT:
-        print("(" + current_state.token + ":" + lexeme + ")", end=" ")
+        get_next_token()
+    elif compare_digest(current_state.token, Token.WHITE_SPACE) and compare_digest(current_state.token, Token.COMMENT):
+        current_token: str = current_state.token
+        if current_token == Token.LETTER:
+            current_token = get_letter_token(lexeme)
+        return current_token, lexeme
 
 
 def get_letter_token(lexeme):
@@ -195,6 +207,18 @@ def get_letter_token(lexeme):
         return Token.KEYWORD
     else:
         return Token.ID
+
+
+def panic():
+    reset_pointers()
+
+
+def add_to_symbol_table(lexeme) -> int:
+    if lexeme not in symbol_table_set:
+        symbol_table.append(lexeme)
+        symbol_table_set.add(lexeme)
+
+    return len(symbol_table)
 
 
 def save_token(lexeme, token):
