@@ -1,5 +1,3 @@
-from secrets import compare_digest
-
 buffer = ""
 buffer_size = 0
 begin_pointer = 0
@@ -82,7 +80,7 @@ class ErrorState(State):
             ErrorState.invalid_input_error = self
 
 
-def initial_input_file():
+def run_scanner():
     initial_DFA()
     global buffer, forward_pointer, buffer_size
     input_file = open("input.txt", 'r')
@@ -93,12 +91,13 @@ def initial_input_file():
     buffer_size = len(buffer)
     while True:
         next_token = get_next_token()
-        if next_token == None:
+        if next_token is None:
             break
         else:
             (current_token, lexeme) = next_token
         if current_token == Token.ID or current_token == Token.KEYWORD:
             symbol_id = add_to_symbol_table(lexeme)
+
 
 def initial_DFA():
     start_state = State("start_state")
@@ -186,8 +185,8 @@ def get_next_token():
             char = buffer[forward_pointer]
         if char == "\n":
             number_of_line += 1
-            print()
-            print(str(number_of_line) + " : ", end=" ")
+            # print()
+            # print(str(number_of_line) + " : ", end=" ")
         if char not in domain and char != "EOF":
             if current_state.name != "comment_state3" and current_state.name != "comment_state4":
                 current_state = ErrorState.invalid_input_error
@@ -201,18 +200,18 @@ def get_next_token():
 
     lexeme = buffer[begin_pointer:forward_pointer + 1]
     reset_pointers()
-    if compare_digest(current_state.token, Token.ERROR):
+    if current_state.token == Token.ERROR:
         if len(lexeme) > 7:
             lexeme = lexeme[:7] + "..."
-        print("(Error " + current_state.message + " : " + lexeme + ")", end=" ")
+        # print("(Error " + current_state.message + " : " + lexeme + ")", end=" ")
         return get_next_token()
-    elif compare_digest(current_state.token, Token.WHITE_SPACE) or compare_digest(current_state.token, Token.COMMENT):
+    elif current_state.token == Token.WHITE_SPACE or current_state.token == Token.COMMENT:
         return get_next_token()
     else:
         current_token: str = current_state.token
         if current_token == Token.LETTER:
             current_token = get_letter_token(lexeme)
-        print("(" + current_state.token + " : " + lexeme + ")", end=" ")
+        print("(" + current_token + " : " + lexeme + ")", end="\n")
         return current_token, lexeme
 
 
