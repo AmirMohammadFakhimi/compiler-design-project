@@ -183,11 +183,16 @@ def get_next_token():
             char = buffer[forward_pointer]
         if char == "\n":
             number_of_line += 1
+
         if char not in domain and char != "EOF":
-            if current_state.name != "comment_state3" and current_state.name != "comment_state4":
+            if current_state.name == "whitespace1":
+                begin_pointer = forward_pointer
+
+            if current_state.name != "comment_state3" and current_state.name != "comment_state4" and current_state.name != "comment_state6":
                 current_state = ErrorState.invalid_input_error
         else:
             current_state = current_state.move(char)
+
         forward_pointer += 1
     forward_pointer -= 1
 
@@ -207,7 +212,7 @@ def get_next_token():
         current_token: str = current_state.token
         if current_token == Token.LETTER:
             current_token = get_letter_token(lexeme)
-        print("(" + current_token + " : " + lexeme + ")", end="\n")
+        # print("(" + current_token + " : " + lexeme + ")", end="\n")
         return current_token, lexeme
 
 
