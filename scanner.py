@@ -1,4 +1,3 @@
-import token
 from secrets import compare_digest
 
 buffer = ""
@@ -36,8 +35,9 @@ class State:
     states = []
     _number = 0
 
-    def __init__(self, should_back=False, token=None):
+    def __init__(self, name, should_back=False, token=None):
         self.number = State._number
+        self.name = name
         self.should_back = should_back
         self.token = token
         self._destination_states = dict()
@@ -73,9 +73,13 @@ class State:
 
 
 class ErrorState(State):
-    def __init__(self, message):
-        super(ErrorState, self).__init__(False, Token.ERROR)
+    invalid_input_error = None
+
+    def __init__(self, name, message):
+        super(ErrorState, self).__init__(name, False, Token.ERROR)
         self.message = message
+        if name == "invalid_input_error":
+            ErrorState.invalid_input_error = self
 
 
 def initial_input_file():
@@ -87,56 +91,59 @@ def initial_input_file():
     # symbol_table_file = open("symbol_table.txt", 'w')
     buffer = input_file.read()
     buffer_size = len(buffer)
-    while forward_pointer < buffer_size:
-        (current_token, lexeme) = get_next_token()
-
-        if current_token == Token.SYMBOL or current_token == Token.KEYWORD:
+    while True:
+        next_token = get_next_token()
+        if next_token == None:
+            break
+        else:
+            (current_token, lexeme) = next_token
+        if current_token == Token.ID or current_token == Token.KEYWORD:
             symbol_id = add_to_symbol_table(lexeme)
 
-
 def initial_DFA():
-    start_state = State()
+    start_state = State("start_state")
 
     # error states
-    invalid_input_error = ErrorState("Invalid input")
-    unclosed_comment_error = ErrorState("Unclosed comment")
-    unmatched_comment_error = ErrorState("Unmatched comment")
-    invalid_number_error = ErrorState("Invalid number")
+    unclosed_comment_error = ErrorState("unclosed_comment_error", "Unclosed comment")
+    unmatched_comment_error = ErrorState("unmatched_comment_error", "Unmatched comment")
+    invalid_number_error = ErrorState("invalid_number_error", "Invalid number")
+    invalid_input_error = ErrorState("invalid_input_error", "Invalid input")
 
     # digit
-    digit_state1 = State()
-    digit_state2 = State(True, Token.NUMBER)
+    digit_state1 = State("digit_state1")
+    digit_state2 = State("digit_state2", True, Token.NUMBER)
     digit_state1.add_all_states({digit: digit_state1, letters: invalid_number_error, other: digit_state2})
 
     # letter (id & keyword)
-    letter_state1 = State()
-    letter_state2 = State(True, Token.LETTER)
+    letter_state1 = State("letter_state1")
+    letter_state2 = State("letter_state2", True, Token.LETTER)
     letter_state1.add_all_states({letters: letter_state1, other: letter_state2})
 
     # symbol, p-symbols = {all except ==, =, /, *}
-    symbol_state1 = State(False, Token.SYMBOL)
-    symbol_state2 = State()  # =
-    symbol_state3 = State(False, Token.SYMBOL)  # return ==
-    symbol_state4 = State(True, Token.SYMBOL)  # return =
+    symbol_state1 = State("symbol_state1", False, Token.SYMBOL)
+    symbol_state2 = State("symbol_state2")  # =
+    symbol_state3 = State("symbol_state3", False, Token.SYMBOL)  # return ==
+    symbol_state4 = State("symbol_state4", True, Token.SYMBOL)  # return =
     symbol_state2.add_all_states({"=": symbol_state3, other: symbol_state4})
 
-    symbol_state5 = State()  # *
-    symbol_state6 = State(True, Token.SYMBOL)
+    symbol_state5 = State("symbol_state5")  # *
+    symbol_state6 = State("symbol_state6", True, Token.SYMBOL)
     symbol_state5.add_all_states({"/": unmatched_comment_error, other: symbol_state6})
 
     # whitespace
-    whitespace1 = State()
-    whitespace2 = State(True, Token.WHITE_SPACE)
-    whitespace1.add_all_states({whitespace: whitespace1, other: whitespace2})
+    whitespace1 = State("whitespace1")
+    whitespace2 = State("whitespace2", True, Token.WHITE_SPACE)
+    whitespace3 = State("whitespace3", False, Token.WHITE_SPACE)
+    whitespace1.add_all_states({whitespace: whitespace1, "EOF": whitespace3, other: whitespace2})
 
     # comment
-    comment_state1 = State()  # /
-    comment_state2 = State(True, Token.SYMBOL)  # / divide
-    comment_state3 = State()  # /*
-    comment_state4 = State()  # /* *
-    comment_state5 = State(False, Token.COMMENT)  # /* */
-    comment_state6 = State()  # //
-    comment_state7 = State(True, Token.COMMENT)  # // (\n | EOF)
+    comment_state1 = State("comment_state1")  # /
+    comment_state2 = State("comment_state2", True, Token.SYMBOL)  # / divide
+    comment_state3 = State("comment_state3")  # /*
+    comment_state4 = State("comment_state4")  # /* *
+    comment_state5 = State("comment_state5", False, Token.COMMENT)  # /* */
+    comment_state6 = State("comment_state6")  # //
+    comment_state7 = State("comment_state7", True, Token.COMMENT)  # // (\n | EOF)
 
     comment_state1.add_all_states({"/": comment_state6, "*": comment_state3, other: comment_state2})
 
@@ -155,8 +162,7 @@ def initial_DFA():
             letters: letter_state1,
             p_symbols: symbol_state1,
             "=": symbol_state2,
-            "*": symbol_state5,
-            other: invalid_input_error
+            "*": symbol_state5
         }
     )
 
@@ -169,6 +175,8 @@ def reset_pointers():
 
 def get_next_token():
     global forward_pointer, begin_pointer, number_of_line
+    if forward_pointer >= buffer_size:
+        return None
     current_state = State.start_state
 
     while not current_state.is_final():
@@ -176,12 +184,15 @@ def get_next_token():
             char = "EOF"
         else:
             char = buffer[forward_pointer]
-
         if char == "\n":
             number_of_line += 1
             print()
             print(str(number_of_line) + " : ", end=" ")
-        current_state = current_state.move(char)
+        if char not in domain and char != "EOF":
+            if current_state.name != "comment_state3" and current_state.name != "comment_state4":
+                current_state = ErrorState.invalid_input_error
+        else:
+            current_state = current_state.move(char)
         forward_pointer += 1
     forward_pointer -= 1
 
@@ -194,11 +205,14 @@ def get_next_token():
         if len(lexeme) > 7:
             lexeme = lexeme[:7] + "..."
         print("(Error " + current_state.message + " : " + lexeme + ")", end=" ")
-        get_next_token()
-    elif compare_digest(current_state.token, Token.WHITE_SPACE) and compare_digest(current_state.token, Token.COMMENT):
+        return get_next_token()
+    elif compare_digest(current_state.token, Token.WHITE_SPACE) or compare_digest(current_state.token, Token.COMMENT):
+        return get_next_token()
+    else:
         current_token: str = current_state.token
         if current_token == Token.LETTER:
             current_token = get_letter_token(lexeme)
+        print("(" + current_state.token + " : " + lexeme + ")", end=" ")
         return current_token, lexeme
 
 
@@ -209,18 +223,10 @@ def get_letter_token(lexeme):
         return Token.ID
 
 
-def panic():
-    reset_pointers()
-
-
 def add_to_symbol_table(lexeme) -> int:
+    global symbol_table_set, symbol_table
     if lexeme not in symbol_table_set:
         symbol_table.append(lexeme)
         symbol_table_set.add(lexeme)
 
     return len(symbol_table)
-
-
-def save_token(lexeme, token):
-    if token != token.WHITE_SPACE and token != token.COMMENT:
-        pass

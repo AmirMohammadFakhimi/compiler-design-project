@@ -9,8 +9,7 @@ return a;
 }
 
 while (b < 10000){
-b = bc! * a;
-/*12345678
+b = bc!e * a;
 
 }
 
@@ -23,3 +22,4 @@ int var = f(10, 5);
 return 0;
 
 }
+// salam
