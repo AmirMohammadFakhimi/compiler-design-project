@@ -5,7 +5,7 @@ non_terminals: list[str]
 first: dict[str, list[str]]
 follow: dict[str, list[str]]
 grammar: dict[str, list[str]]
-parse_table: dict[str, dict[str, str]] = dict()
+parse_table: dict[str, dict[str, str]]
 
 def initial_parser(file_name="grammar/table.json"):
     input_file = open(file_name, 'r')
