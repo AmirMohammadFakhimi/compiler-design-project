@@ -82,19 +82,23 @@ class ErrorState(State):
             ErrorState.invalid_input_error = self
 
 
-def run_scanner(file_name):
+def run_scanner(file_name="input.txt"):
+    initial_scanner(file_name)
+    while True:
+        next_token = get_next_token()
+        if next_token == "$":
+            break
+        else:
+            (current_token, lexeme) = next_token
+            handle_output_token(current_token, lexeme)
+
+
+def initial_scanner(file_name="input.txt"):
     initial_DFA()
     global buffer, forward_pointer, buffer_size
     input_file = open(file_name, 'r')
     buffer = input_file.read()
     buffer_size = len(buffer)
-    while True:
-        next_token = get_next_token()
-        if next_token is None:
-            break
-        else:
-            (current_token, lexeme) = next_token
-            handle_output_token(current_token, lexeme)
 
 
 def initial_DFA():
@@ -173,7 +177,7 @@ def reset_pointers():
 def get_next_token():
     global forward_pointer, begin_pointer, number_of_line
     if forward_pointer >= buffer_size:
-        return None
+        return "$"
     current_state = State.start_state
 
     while not current_state.is_final():

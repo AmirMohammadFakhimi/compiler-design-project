@@ -1,7 +1,7 @@
 import scanner
+import parser
 
-
-def create_files():
+def create_files_for_scanner_phase():
     create_symbol_table_file()
     create_file_from_dict(open("tokens.txt", 'w'), scanner.tokens)
     create_file_from_dict(open("lexical_errors.txt", 'w'), scanner.errors, "There is no lexical error.")
@@ -37,5 +37,7 @@ def create_file_from_dict(file, dictionary, write_on_empty_dict=None):
 
 
 if __name__ == '__main__':
-    scanner.run_scanner("input.txt")
-    create_files()
+    # scanner.initial_scanner("input.txt")
+    # create_files_for_scanner_phase()
+    scanner.initial_scanner()
+    parser.initial_parser()
