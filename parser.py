@@ -27,10 +27,10 @@ def initial_parser(file_name="grammar/table.json"):
 def run_parser(file_name="grammar/table.json"):
     global parse_table, grammar
     initial_parser(file_name)
+    top_token = scanner.get_next_token()
     
     while (True):
         top_stack = stack[-1]
-        top_token = scanner.get_next_token()
 
         top_input = None
         if top_token[0] == Token.KEYWORD or top_token[0] == Token.SYMBOL:
@@ -47,6 +47,7 @@ def run_parser(file_name="grammar/table.json"):
         if action[0] == "shift":
             stack.append(top_input)
             stack.append(action[1])
+            top_token = scanner.get_next_token()
         elif action[0] == "reduce":
             action_grammer = grammar[action[1]]
             number_of_remove_from_stack = (len(action_grammer) - 2) * 2
