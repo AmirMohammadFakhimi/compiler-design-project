@@ -1,5 +1,6 @@
 import scanner
 import parser
+import anytree
 
 def create_files_for_scanner_phase():
     create_symbol_table_file()
@@ -41,3 +42,6 @@ if __name__ == '__main__':
     # create_files_for_scanner_phase()
     # scanner.run_scanner()
     parser.run_parser()
+    root = parser.root
+    for pre, _, node in anytree.RenderTree(root):
+        print("%s%s" % (pre, node.name))
