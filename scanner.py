@@ -1,3 +1,5 @@
+from token import Token
+
 buffer = ""
 buffer_size = 0
 begin_pointer = 0
@@ -17,17 +19,6 @@ symbol_table_set = {"if", "else", "void", "int", "while", "break", "switch", "de
 symbol_table = ["if", "else", "void", "int", "while", "break", "switch", "default", "case", "return", "endif"]
 tokens: dict[int, list[(str, str)]] = dict()
 errors: dict[int, list[(str, str)]] = dict()
-
-
-class Token:
-    LETTER = "LETTER"
-    NUMBER = "NUM"
-    SYMBOL = "SYMBOL"
-    ID = "ID"
-    KEYWORD = "KEYWORD"
-    COMMENT = "COMMENT"
-    WHITE_SPACE = "WHITESPACE"
-    ERROR = "ERROR"
 
 
 class State:

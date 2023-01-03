@@ -41,3 +41,4 @@ if __name__ == '__main__':
     # create_files_for_scanner_phase()
     scanner.initial_scanner()
     parser.initial_parser()
+    parser.run_parser()

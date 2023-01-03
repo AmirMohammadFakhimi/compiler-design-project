@@ -1,0 +1,9 @@
+class Token:
+    LETTER = "LETTER"
+    NUMBER = "NUM"
+    SYMBOL = "SYMBOL"
+    ID = "ID"
+    KEYWORD = "KEYWORD"
+    COMMENT = "COMMENT"
+    WHITE_SPACE = "WHITESPACE"
+    ERROR = "ERROR"
