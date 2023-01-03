@@ -37,8 +37,7 @@ def create_file_from_dict(file, dictionary, write_on_empty_dict=None):
 
 
 if __name__ == '__main__':
-    # scanner.initial_scanner("input.txt")
-    # create_files_for_scanner_phase()
     scanner.initial_scanner()
-    parser.initial_parser()
+    # create_files_for_scanner_phase()
+    # scanner.run_scanner()
     parser.run_parser()

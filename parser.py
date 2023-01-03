@@ -1,6 +1,6 @@
 import json
 import scanner
-from token import Token
+from custom_token import Token
 
 terminals: list[str]
 non_terminals: list[str]
@@ -24,19 +24,21 @@ def initial_parser(file_name="grammar/table.json"):
     grammar = data["grammar"]
     parse_table = data["parse_table"]
     
-def run_parser():
+def run_parser(file_name="grammar/table.json"):
     global parse_table, grammar
-
+    initial_parser(file_name)
+    
     while (True):
         top_stack = stack[-1]
         top_token = scanner.get_next_token()
+
         top_input = None
-        if top_token == Token.KEYWORD or top_token == Token.SYMBOL:
+        if top_token[0] == Token.KEYWORD or top_token[0] == Token.SYMBOL:
             top_input = top_token[1]
         else:
             top_input = top_token[0]
 
-        print(top_stack, )
+        print(top_stack, top_input)
         if top_input in parse_table[top_stack].keys():
             action = parse_table[top_stack][top_input].split('_')
         else:
@@ -51,14 +53,13 @@ def run_parser():
             for _ in range(number_of_remove_from_stack):
                 stack.pop()
             
-            stack.push(action_grammer[0])
+            stack.append(action_grammer[0])
             next_state = parse_table[stack[-2]][stack[-1]].split('_')[1]
-            stack.push(next_state)
+            stack.append(next_state)
         elif action[0] == "accept":
             break
         elif action[0] == "error":
             pass
-    
     
     if len(errors) == 0:
         errors.append("There is no syntax error.")

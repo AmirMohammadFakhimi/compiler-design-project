@@ -1,4 +1,4 @@
-from token import Token
+from custom_token import Token
 
 buffer = ""
 buffer_size = 0
