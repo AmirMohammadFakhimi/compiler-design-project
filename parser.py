@@ -16,7 +16,7 @@ errors = []
 
 
 def initial_parser(file_name="grammar/table.json"):
-    global parse_table, grammar,follow
+    global parse_table, grammar, follow
 
     input_file = open(file_name, 'r')
     data = json.loads(input_file.read())
@@ -35,12 +35,19 @@ def get_top_input(top_token):
         return top_token[0]
 
 
+def get_parse_tree():
+    result = ""
+    for pre, _, node in anytree.RenderTree(root):
+        result += pre + node.name + '\n'
+    return result
+
+
 def run_parser(file_name="grammar/table.json"):
-    global parse_table, grammar, node_stack, stack,follow,root
+    global parse_table, grammar, node_stack, stack, follow, root
     initial_parser(file_name)
     top_token = scanner.get_next_token()
 
-    while (True):
+    while True:
         top_stack = stack[-1]
 
         top_input = get_top_input(top_token)
@@ -49,27 +56,37 @@ def run_parser(file_name="grammar/table.json"):
             action = parse_table[top_stack][top_input].split('_')
         else:
             action = ["error"]
-        print(action)
         if action[0] == "shift":
             stack.append(top_input)
             stack.append(action[1])
-            node_stack.append(anytree.Node(top_token))
+            if top_token == '$':
+                node_stack.append(anytree.Node(top_token))
+            else:
+                node_stack.append(anytree.Node('(' + str(top_token[0]) + ', ' + str(top_token[1]) + ')'))
             top_token = scanner.get_next_token()
         elif action[0] == "reduce":
             action_grammar = grammar[action[1]]
-            number_of_remove_from_stack = (len(action_grammar) - action_grammar.count('epsilon') - 2) * 2
-            for _ in range(number_of_remove_from_stack):
+            number_of_rhs = (len(action_grammar) - action_grammar.count('epsilon') - 2)
+            for _ in range(number_of_rhs * 2):
                 stack.pop()
-
+            children = []
+            for _ in range(number_of_rhs):
+                children.append(node_stack.pop())
+            children.reverse()
+            if action_grammar.count('epsilon') > 0:
+                children.append(anytree.Node('epsilon'))
             stack.append(action_grammar[0])
             next_state = parse_table[stack[-2]][stack[-1]].split('_')[1]
-            children = node_stack[-number_of_remove_from_stack:]
-            node_stack = node_stack[:-number_of_remove_from_stack]
-            node_stack.append(anytree.Node(action_grammar[0], children=children))
             stack.append(next_state)
+            node_stack.append(anytree.Node(action_grammar[0], children=children))
         elif action[0] == "accept":
-            root = anytree.Node('program', children=node_stack)
+            node = node_stack.pop()
+            root = node_stack.pop()
+            children = list(root.children)
+            children.append(node)
+            root = anytree.Node(root.name, children=children)
             break
+
         elif action[0] == "error":
             errors.append(f'#{scanner.number_of_line} : syntax error , illegal {top_input}')
 
