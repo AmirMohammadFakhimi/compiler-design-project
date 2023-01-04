@@ -1,6 +1,5 @@
 import scanner
 import parser
-import anytree
 
 
 def create_files_for_scanner_phase():

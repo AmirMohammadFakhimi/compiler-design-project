@@ -1,4 +1,4 @@
-/* sample 3 */
+/* sample 2 */
 
 int global1;
 int global2;
@@ -8,26 +8,12 @@ int a(int a, int b, int c[]){
    while(a<b){
      global2 = global1 + c[a+b-1];
      a = a - b;
-     if (a<0) {
-        break;
-     }else{
-        output(a);
-     }
-     endif
-     if (b<100)
-        break;
-     endif
    }
    c[0] = global2;
-   return;
+   return c[0];
 }
 void main(void){
-	int p;
-	int i;
 	int array[50];
-	p = 2 + 1;
-	i = 1;
-	a(p, i, array);
-	p = (a(p, i, array) * 10);
+	array[10] = a(0, 50, array);
 	return;
 }

@@ -1,4 +1,13 @@
-from custom_token import Token
+class Token:
+    LETTER = "LETTER"
+    NUMBER = "NUM"
+    SYMBOL = "SYMBOL"
+    ID = "ID"
+    KEYWORD = "KEYWORD"
+    COMMENT = "COMMENT"
+    WHITE_SPACE = "WHITESPACE"
+    ERROR = "ERROR"
+
 
 buffer = ""
 buffer_size = 0

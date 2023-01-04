@@ -1,7 +1,18 @@
 import json
 import scanner
-from custom_token import Token
-import anytree
+from anytree import Node, RenderTree
+
+
+class Token:
+    LETTER = "LETTER"
+    NUMBER = "NUM"
+    SYMBOL = "SYMBOL"
+    ID = "ID"
+    KEYWORD = "KEYWORD"
+    COMMENT = "COMMENT"
+    WHITE_SPACE = "WHITESPACE"
+    ERROR = "ERROR"
+
 
 terminals: list[str]
 non_terminals: list[str]
@@ -16,7 +27,7 @@ errors = []
 tokens = {}
 
 
-def initial_parser(file_name="grammar/table.json"):
+def initial_parser(file_name="table.json"):
     global parse_table, grammar, follow, non_terminals, terminals, first
 
     input_file = open(file_name, 'r')
@@ -38,12 +49,12 @@ def get_top_input(top_token):
 
 def get_parse_tree():
     result = ""
-    for pre, _, node in anytree.RenderTree(root):
+    for pre, _, node in RenderTree(root):
         result += pre + node.name + '\n'
-    return result
+    return result[:-1]
 
 
-def run_parser(file_name="grammar/table.json"):
+def run_parser(file_name="table.json"):
     global parse_table, grammar, node_stack, stack, follow, root, non_terminals
     initial_parser(file_name)
     top_token = scanner.get_next_token()
@@ -62,9 +73,9 @@ def run_parser(file_name="grammar/table.json"):
             stack.append(top_input)
             stack.append(action[1])
             if top_token == '$':
-                node_stack.append(anytree.Node(top_token))
+                node_stack.append(Node(top_token))
             else:
-                node_stack.append(anytree.Node('(' + str(top_token[0]) + ', ' + str(top_token[1]) + ')'))
+                node_stack.append(Node('(' + str(top_token[0]) + ', ' + str(top_token[1]) + ')'))
             top_token = scanner.get_next_token()
         elif action[0] == "reduce":
 
@@ -77,17 +88,17 @@ def run_parser(file_name="grammar/table.json"):
                 children.append(node_stack.pop())
             children.reverse()
             if action_grammar.count('epsilon') > 0:
-                children.append(anytree.Node('epsilon'))
+                children.append(Node('epsilon'))
             stack.append(action_grammar[0])
             next_state = parse_table[stack[-2]][stack[-1]].split('_')[1]
             stack.append(next_state)
-            node_stack.append(anytree.Node(action_grammar[0], children=children))
+            node_stack.append(Node(action_grammar[0], children=children))
         elif action[0] == "accept":
             node = node_stack.pop()
             root = node_stack.pop()
             children = list(root.children)
             children.append(node)
-            root = anytree.Node(root.name, children=children)
+            root = Node(root.name, children=children)
             break
 
         elif action[0] == "error":
@@ -116,6 +127,7 @@ def run_parser(file_name="grammar/table.json"):
                     for i in range(len(goto_keys)):
                         if top_input in follow[goto_keys[i]]:
                             stack.append(goto_keys[i])
+                            node_stack.append(Node(goto_keys[i]))
                             errors.append(f'#{scanner.number_of_line} : syntax error , missing {goto_keys[i]}')
                             next_grammar_number = stack_item_row[goto_keys[i]].split('_')[1]
                             stack.append(next_grammar_number)
@@ -127,34 +139,11 @@ def run_parser(file_name="grammar/table.json"):
                     else:
                         errors.append(f'#{scanner.number_of_line} : syntax error , discarded {top_input} from input')
 
-
-
-
-
-                    # stack.append(goto_keys[0])
-                    # errors.append(f'#{scanner.number_of_line} : syntax error , missing {goto_keys[0]}')
-                    # next_grammar_number = stack_item_row[goto_keys[0]].split('_')[1]
-                    # stack.append(next_grammar_number)
-                    #
-                    # # iterate over input until find a follow of the desired non-terminal
-                    # top_token = scanner.get_next_token()
-                    # top_input = get_top_input(top_token)
-                    # tokens[top_input] = top_token[0]
-                    # while top_input not in follow[goto_keys[0]]:
-                    #     if top_input == "$":
-                    #         errors.append(f'syntax error, Unexpected EOF')
-                    #         return
-                    #
-                    #     top_token = scanner.get_next_token()
-                    #     top_input = get_top_input(top_token)
-                    #     tokens[top_input] = top_token[0]
-                    #     errors.append(f'#{scanner.number_of_line} : syntax error , discarded {top_input} from input')
-                    #
-                    # break
                 else:
                     stack.pop()
                     stack_pop = stack.pop()
+                    node = node_stack.pop()
                     if stack_pop in non_terminals:
                         errors.append(f'syntax error , discarded {stack_pop} from stack')
                     else:
-                        errors.append(f'syntax error , discarded ({stack_pop}, {stack_pop}) from stack')
+                        errors.append(f'syntax error , discarded {node.name} from stack')

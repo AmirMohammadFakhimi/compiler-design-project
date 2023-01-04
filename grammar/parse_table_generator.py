@@ -129,5 +129,5 @@ for t in table['non_terminals'] + table['terminals']:
     if t in table['follow']:
         table['follow'][t] = list(table['follow'][t])
 json_object = json.dumps(table, indent=4)
-with open("table.json", "w") as outfile:
+with open("../table.json", "w") as outfile:
     outfile.write(json_object)
