@@ -13,10 +13,11 @@ stack = ["0"]
 node_stack = []
 root = None
 errors = []
+tokens = {}
 
 
 def initial_parser(file_name="grammar/table.json"):
-    global parse_table, grammar, follow
+    global parse_table, grammar, follow, non_terminals, terminals, first
 
     input_file = open(file_name, 'r')
     data = json.loads(input_file.read())
@@ -43,7 +44,7 @@ def get_parse_tree():
 
 
 def run_parser(file_name="grammar/table.json"):
-    global parse_table, grammar, node_stack, stack, follow, root
+    global parse_table, grammar, node_stack, stack, follow, root, non_terminals
     initial_parser(file_name)
     top_token = scanner.get_next_token()
 
@@ -51,6 +52,7 @@ def run_parser(file_name="grammar/table.json"):
         top_stack = stack[-1]
 
         top_input = get_top_input(top_token)
+        tokens[top_input] = top_token[0]
 
         if top_input in parse_table[top_stack].keys():
             action = parse_table[top_stack][top_input].split('_')
@@ -94,26 +96,65 @@ def run_parser(file_name="grammar/table.json"):
             while True:
                 stack_item_state = stack[-1]
                 stack_item_row = parse_table[stack_item_state]
-                gotos_key = []
+                goto_keys = []
 
                 for stack_item_input in stack_item_row.keys():
                     if stack_item_row[stack_item_input].startswith('goto'):
-                        gotos_key.append(stack_item_input)
+                        goto_keys.append(stack_item_input)
 
-                gotos_key.sort()
-                if len(gotos_key) > 0:
-                    stack.append(gotos_key[0])
-                    next_grammar_number = stack_item_row[gotos_key[0]].split('_')[1]
-                    stack.append(next_grammar_number)
+                goto_keys.sort()
+                if len(goto_keys) > 0:
+                    top_token = scanner.get_next_token()
+                    top_input = get_top_input(top_token)
+                    tokens[top_input] = top_token[0]
 
-                    # iterate over input until find a follow of the desired non terminal
-                    while top_input not in follow[grammar[next_grammar_number][0]]:
-                        if top_input == "$":
-                            return
+                    if top_input == "$":
+                        errors.append(f'syntax error, Unexpected EOF')
+                        return
 
-                        top_input = get_top_input(top_token)
+                    is_break = False
+                    for i in range(len(goto_keys)):
+                        if top_input in follow[goto_keys[i]]:
+                            stack.append(goto_keys[i])
+                            errors.append(f'#{scanner.number_of_line} : syntax error , missing {goto_keys[i]}')
+                            next_grammar_number = stack_item_row[goto_keys[i]].split('_')[1]
+                            stack.append(next_grammar_number)
+                            is_break = True
+                            break
 
-                    break
+                    if is_break:
+                        break
+                    else:
+                        errors.append(f'#{scanner.number_of_line} : syntax error , discarded {top_input} from input')
+
+
+
+
+
+                    # stack.append(goto_keys[0])
+                    # errors.append(f'#{scanner.number_of_line} : syntax error , missing {goto_keys[0]}')
+                    # next_grammar_number = stack_item_row[goto_keys[0]].split('_')[1]
+                    # stack.append(next_grammar_number)
+                    #
+                    # # iterate over input until find a follow of the desired non-terminal
+                    # top_token = scanner.get_next_token()
+                    # top_input = get_top_input(top_token)
+                    # tokens[top_input] = top_token[0]
+                    # while top_input not in follow[goto_keys[0]]:
+                    #     if top_input == "$":
+                    #         errors.append(f'syntax error, Unexpected EOF')
+                    #         return
+                    #
+                    #     top_token = scanner.get_next_token()
+                    #     top_input = get_top_input(top_token)
+                    #     tokens[top_input] = top_token[0]
+                    #     errors.append(f'#{scanner.number_of_line} : syntax error , discarded {top_input} from input')
+                    #
+                    # break
                 else:
                     stack.pop()
-                    stack.pop()
+                    stack_pop = stack.pop()
+                    if stack_pop in non_terminals:
+                        errors.append(f'syntax error , discarded {stack_pop} from stack')
+                    else:
+                        errors.append(f'syntax error , discarded ({stack_pop}, {stack_pop}) from stack')

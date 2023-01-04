@@ -38,10 +38,25 @@ def create_file_from_dict(file, dictionary, write_on_empty_dict=None):
         file.write("\n")
 
 
+def create_files_for_parser_phase():
+    create_error_file()
+    create_parse_tree_file()
+
+def create_error_file():
+    error_file = open("syntax_errors.txt", 'w')
+    if len(parser.errors) == 0:
+        error_file.write("There is no syntax error.")
+    else:
+        for error in parser.errors:
+            error_file.write(f'{error}\n')
+
+def create_parse_tree_file():
+    parse_tree_file = open("parse_tree.txt", 'w')
+    parse_tree_file.write(parser.get_parse_tree())
+
 if __name__ == '__main__':
     scanner.initial_scanner()
     # create_files_for_scanner_phase()
     # scanner.run_scanner()
     parser.run_parser()
-    print(parser.get_parse_tree())
-
+    create_files_for_parser_phase()
