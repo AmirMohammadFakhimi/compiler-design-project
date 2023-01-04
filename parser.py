@@ -102,7 +102,10 @@ def run_parser(file_name="table.json"):
             break
 
         elif action[0] == "error":
-            errors.append(f'#{scanner.number_of_line} : syntax error , illegal {top_input}')
+            if top_input == Token.ID or top_input == Token.NUMBER:
+                errors.append(f'#{scanner.number_of_line} : syntax error , illegal {top_token[1]}')
+            else:
+                errors.append(f'#{scanner.number_of_line} : syntax error , illegal {top_input}')
 
             while True:
                 stack_item_state = stack[-1]
@@ -136,6 +139,8 @@ def run_parser(file_name="table.json"):
 
                     if is_break:
                         break
+                    elif top_input == Token.ID or top_input == Token.NUMBER:
+                        errors.append(f'#{scanner.number_of_line} : syntax error , discarded {top_token[1]} from input')
                     else:
                         errors.append(f'#{scanner.number_of_line} : syntax error , discarded {top_input} from input')
 
