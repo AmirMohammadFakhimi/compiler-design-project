@@ -1,18 +1,7 @@
 import json
 import scanner
 from anytree import Node, RenderTree
-
-
-class Token:
-    LETTER = "LETTER"
-    NUMBER = "NUM"
-    SYMBOL = "SYMBOL"
-    ID = "ID"
-    KEYWORD = "KEYWORD"
-    COMMENT = "COMMENT"
-    WHITE_SPACE = "WHITESPACE"
-    ERROR = "ERROR"
-
+from custom_token import Token
 
 terminals: list[str]
 non_terminals: list[str]
@@ -49,9 +38,11 @@ def get_top_input(top_token):
 
 def get_parse_tree():
     result = ""
-    for pre, _, node in RenderTree(root):
-        result += pre + node.name + '\n'
-    return result[:-1]
+    if root != None:
+        for pre, _, node in RenderTree(root):
+            result += pre + node.name + '\n'
+        result = result[:-1]
+    return result
 
 
 def run_parser(file_name="table.json"):
@@ -123,7 +114,7 @@ def run_parser(file_name="table.json"):
                     tokens[top_input] = top_token[0]
 
                     if top_input == "$":
-                        errors.append(f'syntax error, Unexpected EOF')
+                        errors.append(f'#{scanner.number_of_line} : syntax error , Unexpected EOF')
                         return
 
                     is_break = False
