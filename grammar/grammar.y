@@ -41,7 +41,6 @@ statement: expression_stmt
 | iteration_stmt
 | return_stmt
 | switch_stmt
-| output_fun
 ;
 expression_stmt: expression ';'
 | "break" ';'
@@ -85,15 +84,14 @@ factor: '(' expression ')'
 | call
 | pnum NUM
 ;
-call: pid ID '(' args ')'
+//call: pid ID '(' args ')'
+call: "output" '(' expression ')'
 ;
 args: arg_list
 | /* epsilon */
 ;
 arg_list: arg_list ',' expression
 | expression
-;
-output_fun: "output" '(' expression ')' ';'
 ;
 pid: /* epsilon */;
 pnum: /* epsilon */;
