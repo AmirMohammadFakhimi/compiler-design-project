@@ -1,6 +1,7 @@
 import parser
 import scanner
 
+break_s = []
 ss = []
 pb = []
 i = 0
@@ -57,7 +58,7 @@ def action_routine(symbol_action):
 
     elif symbol_action == 51:  # sub
         t = gettemp()
-        pb.append(generate_code("SUB", ss[-1], ss[-2], t))
+        pb.append(generate_code("SUB", ss[-2], ss[-1], t))
         i += 1
         pop_ss(2)
         ss.append(t)
@@ -102,9 +103,10 @@ def action_routine(symbol_action):
     elif symbol_action == 33:  # while
         pb[ss[-1]] = generate_code("JPF", ss[-2], str(i + 1))
         pb.append(generate_code("JP", ss[-3]))
-        pb[ss[-4]] = generate_code("JP", i+1)
+        pb[break_s[-1]] = generate_code("JP", i+1)
         i += 1
-        pop_ss(4)
+        break_s.pop()
+        pop_ss(3)
 
     elif symbol_action == 48:  # equal
         t = gettemp()
@@ -133,7 +135,7 @@ def action_routine(symbol_action):
         ss.pop()
 
     elif symbol_action == 29:  # break action
-        pb.append(generate_code("JP", ss[-4]))
+        pb.append(generate_code("JP", break_s[-1]))
         i += 1
 
     elif symbol_action == 69:  # switch_compare
@@ -156,3 +158,7 @@ def action_routine(symbol_action):
         pb.append(generate_code("PRINT", ss[-1]))
         pop_ss(1)
         i = i + 1
+    elif symbol_action == 71:  # break_save
+        break_s.append(i)
+        pb.append('')
+        i += 1

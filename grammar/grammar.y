@@ -49,7 +49,7 @@ expression_stmt: expression ';'
 selection_stmt: "if" '(' expression ')' save statement "endif"
 | "if" '(' expression ')' save statement "else" jpf_save statement "endif"
 ;
-iteration_stmt: "while" jp_forward save label '(' expression ')' save statement
+iteration_stmt: "while" jp_forward break_save label '(' expression ')' save statement
 ;
 return_stmt: "return" ';'
 | "return" expression ';'
@@ -100,4 +100,5 @@ label: /* epsilon */;
 jp_forward: /* epsilon */;
 switch_compare: /* epsilon */;
 save: /* epsilon */;
+break_save: /* epsilon */;
 %%
