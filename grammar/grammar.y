@@ -85,7 +85,7 @@ factor: '(' expression ')'
 | pnum NUM
 ;
 //call: pid ID '(' args ')'
-call: "output" '(' expression ')'
+call: "output" '(' args ')'
 ;
 args: arg_list
 | /* epsilon */
