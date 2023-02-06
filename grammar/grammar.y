@@ -84,7 +84,7 @@ factor: '(' expression ')'
 | call
 | pnum NUM
 ;
-call: ID '(' args ')'
+call: pid ID '(' args ')'
 //call: "output" '(' args ')'
 ;
 args: arg_list
