@@ -146,6 +146,6 @@ def action_routine(symbol_action):
         pb.append(generate_code("JP", i + 1))
         i = i + 1
 
-    elif symbol_action == 59:
+    elif symbol_action == 59: # output
         pb.append(generate_code("PRINT", ss[-1]))
         i = i + 1
