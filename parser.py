@@ -72,7 +72,6 @@ def run_parser(file_name="table.json"):
                 node_stack.append(Node('(' + str(top_token[0]) + ', ' + str(top_token[1]) + ')'))
             top_token = scanner.get_next_token()
         elif action[0] == "reduce":
-
             action_grammar = grammar[action[1]]
             number_of_rhs = (len(action_grammar) - action_grammar.count('epsilon') - 2)
             code_gen.action_routine(action[1])

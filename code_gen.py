@@ -2,7 +2,6 @@ import parser
 import scanner
 
 ss = []
-current_input = None
 pb = []
 i = 0
 temp_addr = 500
@@ -34,13 +33,14 @@ def gettemp():
 
 def action_routine(symbol_action):
     global i
-    current_input = parser.top_token[1]
     symbol_action = int(symbol_action)
     if symbol_action == 64:  # pid
+        current_input = parser.top_token[1]
         p = getaddr(current_input)
         ss.append(p)
 
     elif symbol_action == 65:  # pnum
+        current_input = parser.top_token[1]
         ss.append(f'#{current_input}')
 
     elif symbol_action == 42:
@@ -137,7 +137,7 @@ def action_routine(symbol_action):
         pop_ss(1)
         ss.append(temp)
 
-    elif symbol_action == 36: # switch end
+    elif symbol_action == 36:  # switch end
         pop_ss(1)  # pops expression
         pb[ss[-1]] = generate_code("JP", i)
         pop_ss(1)  # pops i
@@ -146,6 +146,7 @@ def action_routine(symbol_action):
         pb.append(generate_code("JP", i + 1))
         i = i + 1
 
-    elif symbol_action == 59: # output
+    elif symbol_action == 59:  # output
         pb.append(generate_code("PRINT", ss[-1]))
+        pop_ss(1)
         i = i + 1
