@@ -95,7 +95,7 @@ def action_routine(symbol_action):
         pb[ss[-1]] = generate_code("JP", i)
         ss.pop()
 
-    elif symbol_action == 31:  # jpf
+    elif symbol_action in [31, 39] :  # jpf
         pb[ss[-1]] = generate_code("JPF", ss[-2], str(i))
         pop_ss(2)
 
@@ -120,7 +120,7 @@ def action_routine(symbol_action):
         ss.append(t)
 
     elif symbol_action == 45:  # get_value
-        addr = ss[-2] + ss[-1]
+        addr = ss[-2] + int(ss[-1][1:]) # int(ss[-1][1:]) removes #
         ss.append(addr)
 
     elif symbol_action == 28:  # pop
@@ -143,7 +143,7 @@ def action_routine(symbol_action):
         pop_ss(1)  # pops i
 
     elif symbol_action == 68:  # jp_forward
-        pb.append(generate_code("JP", i + 1))
+        pb.append(generate_code("JP", i + 2))
         i = i + 1
 
     elif symbol_action == 59:  # output
