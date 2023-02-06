@@ -49,7 +49,7 @@ Grammar
    31 selection_stmt: "if" '(' expression ')' save statement "endif"
    32               | "if" '(' expression ')' save statement "else" jpf_save statement "endif"
 
-   33 iteration_stmt: "while" label '(' expression ')' save statement
+   33 iteration_stmt: "while" jp_forward save label '(' expression ')' save statement
 
    34 return_stmt: "return" ';'
    35            | "return" expression ';'
@@ -253,7 +253,7 @@ Nonterminals, with rules where they appear
         on right: 33
     jp_forward (67)
         on left: 68
-        on right: 36
+        on right: 33 36
     switch_compare (68)
         on left: 69
         on right: 39
@@ -619,7 +619,7 @@ State 35
    30                | • ';'
    31 selection_stmt: • "if" '(' expression ')' save statement "endif"
    32               | • "if" '(' expression ')' save statement "else" jpf_save statement "endif"
-   33 iteration_stmt: • "while" label '(' expression ')' save statement
+   33 iteration_stmt: • "while" jp_forward save label '(' expression ')' save statement
    34 return_stmt: • "return" ';'
    35            | • "return" expression ';'
    36 switch_stmt: • "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt '}'
@@ -755,12 +755,12 @@ State 41
 
 State 42
 
-   33 iteration_stmt: "while" • label '(' expression ')' save statement
-   67 label: ε •
+   33 iteration_stmt: "while" • jp_forward save label '(' expression ')' save statement
+   68 jp_forward: ε •
 
-    $default  reduce using rule 67 (label)
+    $default  reduce using rule 68 (jp_forward)
 
-    label  go to state 64
+    jp_forward  go to state 64
 
 
 State 43
@@ -1003,9 +1003,12 @@ State 63
 
 State 64
 
-   33 iteration_stmt: "while" label • '(' expression ')' save statement
+   33 iteration_stmt: "while" jp_forward • save label '(' expression ')' save statement
+   70 save: ε •
 
-    '('  shift, and go to state 80
+    $default  reduce using rule 70 (save)
+
+    save  go to state 80
 
 
 State 65
@@ -1289,42 +1292,12 @@ State 79
 
 State 80
 
-   33 iteration_stmt: "while" label '(' • expression ')' save statement
-   42 expression: • var '=' expression
-   43           | • simple_expression
-   44 var: • pid ID
-   45    | • pid ID '[' expression ']'
-   46 simple_expression: • additive_expression '<' additive_expression
-   47                  | • additive_expression
-   48                  | • additive_expression "==" additive_expression
-   49 additive_expression: • additive_expression '+' term
-   50                    | • term
-   51                    | • additive_expression '-' term
-   52 term: • term '*' factor
-   53     | • factor
-   54     | • term '/' factor
-   55 factor: • '(' expression ')'
-   56       | • var
-   57       | • call
-   58       | • pnum NUM
-   59 call: • pid ID '(' args ')'
-   64 pid: ε •  [ID]
-   65 pnum: ε •  [NUM]
+   33 iteration_stmt: "while" jp_forward save • label '(' expression ')' save statement
+   67 label: ε •
 
-    '('  shift, and go to state 38
+    $default  reduce using rule 67 (label)
 
-    NUM       reduce using rule 65 (pnum)
-    $default  reduce using rule 64 (pid)
-
-    expression           go to state 94
-    var                  go to state 53
-    simple_expression    go to state 54
-    additive_expression  go to state 55
-    term                 go to state 56
-    factor               go to state 57
-    call                 go to state 58
-    pid                  go to state 59
-    pnum                 go to state 60
+    label  go to state 94
 
 
 State 81
@@ -1517,9 +1490,9 @@ State 93
 
 State 94
 
-   33 iteration_stmt: "while" label '(' expression • ')' save statement
+   33 iteration_stmt: "while" jp_forward save label • '(' expression ')' save statement
 
-    ')'  shift, and go to state 101
+    '('  shift, and go to state 101
 
 
 State 95
@@ -1609,7 +1582,7 @@ State 100
    31               | "if" '(' expression ')' save • statement "endif"
    32               | • "if" '(' expression ')' save statement "else" jpf_save statement "endif"
    32               | "if" '(' expression ')' save • statement "else" jpf_save statement "endif"
-   33 iteration_stmt: • "while" label '(' expression ')' save statement
+   33 iteration_stmt: • "while" jp_forward save label '(' expression ')' save statement
    34 return_stmt: • "return" ';'
    35            | • "return" expression ';'
    36 switch_stmt: • "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt '}'
@@ -1666,12 +1639,42 @@ State 100
 
 State 101
 
-   33 iteration_stmt: "while" label '(' expression ')' • save statement
-   70 save: ε •
+   33 iteration_stmt: "while" jp_forward save label '(' • expression ')' save statement
+   42 expression: • var '=' expression
+   43           | • simple_expression
+   44 var: • pid ID
+   45    | • pid ID '[' expression ']'
+   46 simple_expression: • additive_expression '<' additive_expression
+   47                  | • additive_expression
+   48                  | • additive_expression "==" additive_expression
+   49 additive_expression: • additive_expression '+' term
+   50                    | • term
+   51                    | • additive_expression '-' term
+   52 term: • term '*' factor
+   53     | • factor
+   54     | • term '/' factor
+   55 factor: • '(' expression ')'
+   56       | • var
+   57       | • call
+   58       | • pnum NUM
+   59 call: • pid ID '(' args ')'
+   64 pid: ε •  [ID]
+   65 pnum: ε •  [NUM]
 
-    $default  reduce using rule 70 (save)
+    '('  shift, and go to state 38
 
-    save  go to state 107
+    NUM       reduce using rule 65 (pnum)
+    $default  reduce using rule 64 (pid)
+
+    expression           go to state 107
+    var                  go to state 53
+    simple_expression    go to state 54
+    additive_expression  go to state 55
+    term                 go to state 56
+    factor               go to state 57
+    call                 go to state 58
+    pid                  go to state 59
+    pnum                 go to state 60
 
 
 State 102
@@ -1746,72 +1749,9 @@ State 106
 
 State 107
 
-   17 compound_stmt: • '{' local_declarations statement_list '}'
-   22 statement: • expression_stmt
-   23          | • compound_stmt
-   24          | • selection_stmt
-   25          | • iteration_stmt
-   26          | • return_stmt
-   27          | • switch_stmt
-   28 expression_stmt: • expression ';'
-   29                | • "break" ';'
-   30                | • ';'
-   31 selection_stmt: • "if" '(' expression ')' save statement "endif"
-   32               | • "if" '(' expression ')' save statement "else" jpf_save statement "endif"
-   33 iteration_stmt: • "while" label '(' expression ')' save statement
-   33               | "while" label '(' expression ')' save • statement
-   34 return_stmt: • "return" ';'
-   35            | • "return" expression ';'
-   36 switch_stmt: • "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt '}'
-   42 expression: • var '=' expression
-   43           | • simple_expression
-   44 var: • pid ID
-   45    | • pid ID '[' expression ']'
-   46 simple_expression: • additive_expression '<' additive_expression
-   47                  | • additive_expression
-   48                  | • additive_expression "==" additive_expression
-   49 additive_expression: • additive_expression '+' term
-   50                    | • term
-   51                    | • additive_expression '-' term
-   52 term: • term '*' factor
-   53     | • factor
-   54     | • term '/' factor
-   55 factor: • '(' expression ')'
-   56       | • var
-   57       | • call
-   58       | • pnum NUM
-   59 call: • pid ID '(' args ')'
-   64 pid: ε •  [ID]
-   65 pnum: ε •  [NUM]
+   33 iteration_stmt: "while" jp_forward save label '(' expression • ')' save statement
 
-    ';'       shift, and go to state 37
-    '('       shift, and go to state 38
-    '{'       shift, and go to state 27
-    "break"   shift, and go to state 40
-    "if"      shift, and go to state 41
-    "while"   shift, and go to state 42
-    "return"  shift, and go to state 43
-    "switch"  shift, and go to state 44
-
-    NUM       reduce using rule 65 (pnum)
-    $default  reduce using rule 64 (pid)
-
-    compound_stmt        go to state 45
-    statement            go to state 112
-    expression_stmt      go to state 47
-    selection_stmt       go to state 48
-    iteration_stmt       go to state 49
-    return_stmt          go to state 50
-    switch_stmt          go to state 51
-    expression           go to state 52
-    var                  go to state 53
-    simple_expression    go to state 54
-    additive_expression  go to state 55
-    term                 go to state 56
-    factor               go to state 57
-    call                 go to state 58
-    pid                  go to state 59
-    pnum                 go to state 60
+    ')'  shift, and go to state 112
 
 
 State 108
@@ -1847,9 +1787,12 @@ State 111
 
 State 112
 
-   33 iteration_stmt: "while" label '(' expression ')' save statement •
+   33 iteration_stmt: "while" jp_forward save label '(' expression ')' • save statement
+   70 save: ε •
 
-    $default  reduce using rule 33 (iteration_stmt)
+    $default  reduce using rule 70 (save)
+
+    save  go to state 115
 
 
 State 113
@@ -1860,7 +1803,7 @@ State 113
 
     $default  reduce using rule 38 (case_stmts)
 
-    case_stmts  go to state 115
+    case_stmts  go to state 116
 
 
 State 114
@@ -1878,7 +1821,7 @@ State 114
    31 selection_stmt: • "if" '(' expression ')' save statement "endif"
    32               | • "if" '(' expression ')' save statement "else" jpf_save statement "endif"
    32               | "if" '(' expression ')' save statement "else" jpf_save • statement "endif"
-   33 iteration_stmt: • "while" label '(' expression ')' save statement
+   33 iteration_stmt: • "while" jp_forward save label '(' expression ')' save statement
    34 return_stmt: • "return" ';'
    35            | • "return" expression ';'
    36 switch_stmt: • "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt '}'
@@ -1916,7 +1859,7 @@ State 114
     $default  reduce using rule 64 (pid)
 
     compound_stmt        go to state 45
-    statement            go to state 116
+    statement            go to state 117
     expression_stmt      go to state 47
     selection_stmt       go to state 48
     iteration_stmt       go to state 49
@@ -1935,74 +1878,151 @@ State 114
 
 State 115
 
+   17 compound_stmt: • '{' local_declarations statement_list '}'
+   22 statement: • expression_stmt
+   23          | • compound_stmt
+   24          | • selection_stmt
+   25          | • iteration_stmt
+   26          | • return_stmt
+   27          | • switch_stmt
+   28 expression_stmt: • expression ';'
+   29                | • "break" ';'
+   30                | • ';'
+   31 selection_stmt: • "if" '(' expression ')' save statement "endif"
+   32               | • "if" '(' expression ')' save statement "else" jpf_save statement "endif"
+   33 iteration_stmt: • "while" jp_forward save label '(' expression ')' save statement
+   33               | "while" jp_forward save label '(' expression ')' save • statement
+   34 return_stmt: • "return" ';'
+   35            | • "return" expression ';'
+   36 switch_stmt: • "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt '}'
+   42 expression: • var '=' expression
+   43           | • simple_expression
+   44 var: • pid ID
+   45    | • pid ID '[' expression ']'
+   46 simple_expression: • additive_expression '<' additive_expression
+   47                  | • additive_expression
+   48                  | • additive_expression "==" additive_expression
+   49 additive_expression: • additive_expression '+' term
+   50                    | • term
+   51                    | • additive_expression '-' term
+   52 term: • term '*' factor
+   53     | • factor
+   54     | • term '/' factor
+   55 factor: • '(' expression ')'
+   56       | • var
+   57       | • call
+   58       | • pnum NUM
+   59 call: • pid ID '(' args ')'
+   64 pid: ε •  [ID]
+   65 pnum: ε •  [NUM]
+
+    ';'       shift, and go to state 37
+    '('       shift, and go to state 38
+    '{'       shift, and go to state 27
+    "break"   shift, and go to state 40
+    "if"      shift, and go to state 41
+    "while"   shift, and go to state 42
+    "return"  shift, and go to state 43
+    "switch"  shift, and go to state 44
+
+    NUM       reduce using rule 65 (pnum)
+    $default  reduce using rule 64 (pid)
+
+    compound_stmt        go to state 45
+    statement            go to state 118
+    expression_stmt      go to state 47
+    selection_stmt       go to state 48
+    iteration_stmt       go to state 49
+    return_stmt          go to state 50
+    switch_stmt          go to state 51
+    expression           go to state 52
+    var                  go to state 53
+    simple_expression    go to state 54
+    additive_expression  go to state 55
+    term                 go to state 56
+    factor               go to state 57
+    call                 go to state 58
+    pid                  go to state 59
+    pnum                 go to state 60
+
+
+State 116
+
    36 switch_stmt: "switch" jp_forward save '(' expression ')' '{' case_stmts • default_stmt '}'
    37 case_stmts: case_stmts • case_stmt
    39 case_stmt: • "case" pnum NUM switch_compare save ':' statement_list
    40 default_stmt: • "default" ':' statement_list
    41             | ε •  ['}']
 
-    "case"     shift, and go to state 117
-    "default"  shift, and go to state 118
+    "case"     shift, and go to state 119
+    "default"  shift, and go to state 120
 
     $default  reduce using rule 41 (default_stmt)
 
-    case_stmt     go to state 119
-    default_stmt  go to state 120
-
-
-State 116
-
-   32 selection_stmt: "if" '(' expression ')' save statement "else" jpf_save statement • "endif"
-
-    "endif"  shift, and go to state 121
+    case_stmt     go to state 121
+    default_stmt  go to state 122
 
 
 State 117
+
+   32 selection_stmt: "if" '(' expression ')' save statement "else" jpf_save statement • "endif"
+
+    "endif"  shift, and go to state 123
+
+
+State 118
+
+   33 iteration_stmt: "while" jp_forward save label '(' expression ')' save statement •
+
+    $default  reduce using rule 33 (iteration_stmt)
+
+
+State 119
 
    39 case_stmt: "case" • pnum NUM switch_compare save ':' statement_list
    65 pnum: ε •
 
     $default  reduce using rule 65 (pnum)
 
-    pnum  go to state 122
+    pnum  go to state 124
 
 
-State 118
+State 120
 
    40 default_stmt: "default" • ':' statement_list
 
-    ':'  shift, and go to state 123
+    ':'  shift, and go to state 125
 
 
-State 119
+State 121
 
    37 case_stmts: case_stmts case_stmt •
 
     $default  reduce using rule 37 (case_stmts)
 
 
-State 120
+State 122
 
    36 switch_stmt: "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt • '}'
 
-    '}'  shift, and go to state 124
+    '}'  shift, and go to state 126
 
 
-State 121
+State 123
 
    32 selection_stmt: "if" '(' expression ')' save statement "else" jpf_save statement "endif" •
 
     $default  reduce using rule 32 (selection_stmt)
 
 
-State 122
+State 124
 
    39 case_stmt: "case" pnum • NUM switch_compare save ':' statement_list
 
-    NUM  shift, and go to state 125
+    NUM  shift, and go to state 127
 
 
-State 123
+State 125
 
    20 statement_list: • statement_list statement
    21               | ε •
@@ -2010,27 +2030,27 @@ State 123
 
     $default  reduce using rule 21 (statement_list)
 
-    statement_list  go to state 126
+    statement_list  go to state 128
 
 
-State 124
+State 126
 
    36 switch_stmt: "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt '}' •
 
     $default  reduce using rule 36 (switch_stmt)
 
 
-State 125
+State 127
 
    39 case_stmt: "case" pnum NUM • switch_compare save ':' statement_list
    69 switch_compare: ε •
 
     $default  reduce using rule 69 (switch_compare)
 
-    switch_compare  go to state 127
+    switch_compare  go to state 129
 
 
-State 126
+State 128
 
    17 compound_stmt: • '{' local_declarations statement_list '}'
    20 statement_list: statement_list • statement
@@ -2045,7 +2065,7 @@ State 126
    30                | • ';'
    31 selection_stmt: • "if" '(' expression ')' save statement "endif"
    32               | • "if" '(' expression ')' save statement "else" jpf_save statement "endif"
-   33 iteration_stmt: • "while" label '(' expression ')' save statement
+   33 iteration_stmt: • "while" jp_forward save label '(' expression ')' save statement
    34 return_stmt: • "return" ';'
    35            | • "return" expression ';'
    36 switch_stmt: • "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt '}'
@@ -2102,24 +2122,24 @@ State 126
     pnum                 go to state 60
 
 
-State 127
+State 129
 
    39 case_stmt: "case" pnum NUM switch_compare • save ':' statement_list
    70 save: ε •
 
     $default  reduce using rule 70 (save)
 
-    save  go to state 128
+    save  go to state 130
 
 
-State 128
+State 130
 
    39 case_stmt: "case" pnum NUM switch_compare save • ':' statement_list
 
-    ':'  shift, and go to state 129
+    ':'  shift, and go to state 131
 
 
-State 129
+State 131
 
    20 statement_list: • statement_list statement
    21               | ε •
@@ -2127,10 +2147,10 @@ State 129
 
     $default  reduce using rule 21 (statement_list)
 
-    statement_list  go to state 130
+    statement_list  go to state 132
 
 
-State 130
+State 132
 
    17 compound_stmt: • '{' local_declarations statement_list '}'
    20 statement_list: statement_list • statement
@@ -2145,7 +2165,7 @@ State 130
    30                | • ';'
    31 selection_stmt: • "if" '(' expression ')' save statement "endif"
    32               | • "if" '(' expression ')' save statement "else" jpf_save statement "endif"
-   33 iteration_stmt: • "while" label '(' expression ')' save statement
+   33 iteration_stmt: • "while" jp_forward save label '(' expression ')' save statement
    34 return_stmt: • "return" ';'
    35            | • "return" expression ';'
    36 switch_stmt: • "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt '}'

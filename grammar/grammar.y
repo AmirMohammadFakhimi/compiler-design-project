@@ -49,7 +49,7 @@ expression_stmt: expression ';'
 selection_stmt: "if" '(' expression ')' save statement "endif"
 | "if" '(' expression ')' save statement "else" jpf_save statement "endif"
 ;
-iteration_stmt: "while" label '(' expression ')' save statement
+iteration_stmt: "while" jp_forward save label '(' expression ')' save statement
 ;
 return_stmt: "return" ';'
 | "return" expression ';'

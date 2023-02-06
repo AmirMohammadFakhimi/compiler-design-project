@@ -102,6 +102,7 @@ def action_routine(symbol_action):
     elif symbol_action == 33:  # while
         pb[ss[-1]] = generate_code("JPF", ss[-2], str(i + 1))
         pb.append(generate_code("JP", ss[-3]))
+        pb[ss[-4]] = generate_code("JP", i+1)
         i += 1
         pop_ss(4)
 

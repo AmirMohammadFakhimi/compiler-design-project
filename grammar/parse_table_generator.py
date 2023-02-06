@@ -5,8 +5,8 @@ import os
 
 # you can uncomment this once you have
 # made sure bison 3.8.2 is installed.
-# os.system('bison grammar.y --report=all')
-# os.system('rm grammar.tab.c')
+os.system('bison grammar.y --report=all')
+os.system('rm grammar.tab.c')
 
 
 def correct_form(token):
