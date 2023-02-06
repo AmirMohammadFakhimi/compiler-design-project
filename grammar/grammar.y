@@ -10,13 +10,13 @@ declaration_list: declaration_list declaration
 declaration: var_declaration 
 | fun_declaration 
 ;
-var_declaration: type_specifier pid ID ';'
-| type_specifier pid ID '[' pnum NUM ']' ';'
+var_declaration: type_specifier ID ';'
+| type_specifier ID '[' pnum NUM ']' ';'
 ;
 type_specifier: "int" 
 | "void"
 ;
-fun_declaration: type_specifier pid ID '(' params ')' compound_stmt
+fun_declaration: type_specifier ID '(' params ')' compound_stmt
 ;
 params: param_list
 | "void"
@@ -24,8 +24,8 @@ params: param_list
 param_list: param_list ',' param
 | param
 ;
-param: type_specifier pid ID
-| type_specifier pid ID '[' ']'
+param: type_specifier ID
+| type_specifier ID '[' ']'
 ;
 compound_stmt: '{' local_declarations statement_list '}'
 ;
