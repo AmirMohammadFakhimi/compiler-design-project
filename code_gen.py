@@ -120,7 +120,12 @@ def action_routine(symbol_action):
         ss.append(t)
 
     elif symbol_action == 45:  # get_value
-        addr = ss[-2] + int(ss[-1][1:]) # int(ss[-1][1:]) removes #
+        if type(ss[-1]) is str: # removing #
+            temp = int(ss[-1][1:])
+        else:
+            temp = ss[-1]
+
+        addr = ss[-2] + temp
         ss.append(addr)
 
     elif symbol_action == 28:  # pop
