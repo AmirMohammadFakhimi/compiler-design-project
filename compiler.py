@@ -20,7 +20,7 @@ def create_symbol_table_file():
         symbol_table_file.write(f'{symbol_number}.\t{symbol_table[symbol_number - 1]}\n')
 
     for keyword in scanner.keywords:
-        if keyword not in scanner.symbol_table_set:
+        if keyword not in scanner.symbol_table:
             symbol_number += 1
             symbol_table_file.write(f'{symbol_number}.\t{keyword}\n')
 

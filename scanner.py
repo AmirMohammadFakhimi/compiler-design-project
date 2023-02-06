@@ -212,6 +212,7 @@ def get_next_token():
         current_token: str = current_state.token
         if current_token == Token.LETTER:
             current_token = get_letter_token(lexeme)
+        handle_output_token(current_token, lexeme)
         return current_token, lexeme
 
 

@@ -40,7 +40,7 @@ def get_top_input(top_token):
 
 def get_parse_tree():
     result = ""
-    if root != None:
+    if root is not None:
         for pre, _, node in RenderTree(root):
             result += pre + node.name + '\n'
         result = result[:-1]

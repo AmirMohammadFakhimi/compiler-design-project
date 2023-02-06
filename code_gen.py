@@ -2,7 +2,7 @@ import parser
 import scanner
 
 ss = []
-current_input = None  # TODO
+current_input = None
 pb = []
 i = 0
 temp_addr = 500
@@ -33,7 +33,7 @@ def gettemp():
 def action_routine(symbol_action):
     global i
     current_input = parser.get_top_input(parser.top_token)
-
+    symbol_action = int(symbol_action)
     if symbol_action == 66: #pid
         p = getaddr(current_input)
         ss.append(p)
