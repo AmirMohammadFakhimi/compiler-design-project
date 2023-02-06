@@ -14,8 +14,7 @@ node_stack = []
 root = None
 errors = []
 tokens = {}
-all_semantic_actions = ['pid']
-current_input_for_code_gen = None
+top_token = None
 
 
 def initial_parser(file_name="table.json"):
@@ -48,7 +47,7 @@ def get_parse_tree():
 
 
 def run_parser(file_name="table.json"):
-    global parse_table, grammar, node_stack, stack, follow, root, non_terminals, current_input_for_code_gen
+    global parse_table, grammar, node_stack, stack, follow, root, non_terminals, top_token
     initial_parser(file_name)
     top_token = scanner.get_next_token()
 
@@ -92,7 +91,6 @@ def run_parser(file_name="table.json"):
             stack.append(next_state)
             node_stack.append(Node(action_grammar[0], children=children))
 
-            current_input_for_code_gen = action_grammar[0]
         elif action[0] == "accept":
             node = node_stack.pop()
             root = node_stack.pop()
