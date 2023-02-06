@@ -1,5 +1,6 @@
 import json
 import scanner
+import code_gen
 from anytree import Node, RenderTree
 from custom_token import Token
 
@@ -74,7 +75,7 @@ def run_parser(file_name="table.json"):
 
             action_grammar = grammar[action[1]]
             number_of_rhs = (len(action_grammar) - action_grammar.count('epsilon') - 2)
-
+            code_gen.action_routine(action[1])
             semantic_actions = []
             for _ in range(number_of_rhs * 2):
                 popped = stack.pop()

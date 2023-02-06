@@ -11,53 +11,49 @@
 11. local_declarations -> local_declarations var_declaration | Epsilon
 12. statement_list -> statement_list statement | Epsilon
 13. statement -> expression_stmt | compound_stmt | selection_stmt | iteration_stmt | return_stmt | switch_stmt
-14. expression_stmt -> expression ; | break ; | ;
+14. expression_stmt -> expression #pop ; | break #break_action ; | ;
 15. selection_stmt -> if ( expression ) #save statement #jpf endif | if ( expression ) #save statement else #jpf_save statement #jp endif
-16. iteration_stmt -> while #label ( expression ) #save statement #while
+16. iteration_stmt -> while #jp_forward #save #label( expression ) #save statement #while
 17. return_stmt -> return ; | return expression ;
 
-18. switch_stmt -> switch #save_gettemp ( expression ) { case_stmts default_stmt #jp_switch}
+18. switch_stmt -> switch #jp_forward #save ( expression ) { case_stmts default_stmt #jp_switch}
 19. case_stmts -> case_stmts case_stmt | Epsilon
-20. case_stmt -> case #pnum NUM #switch_compare #save : statement_list #jp_jpf_switch
+20. case_stmt -> case #pnum NUM #switch_compare #save : statement_list #jpf
 21. default_stmt -> default : statement_list | Epsilon
 
 22. expression -> var = expression #assign | simple_expression 
 23. var -> #pid ID | #pid ID [ expression ]
 24. simple_expression -> additive_expression < additive_expression #lt | additive_expression |  additive_expression == additive_expression #equal
-
 26. additive_expression -> additive_expression + term #add | term | additive_expression - term #minus
 28. term -> term * factor #mul | factor | term / factor #div
 30. factor -> ( expression ) | var | call | #pnum NUM
-
 31. call -> #pid ID ( args )
 32. args -> arg_list | Epsilon
 33. arg_list -> arg_list , expression | expression
 
-    #pid
-    #pnum
-    #assign
-    #add
-    #minus
-    #mul
-    #div
+jp_forward = (jp,i+1,,),i=i+1
 
-    #equal
-    #lt
-    #save
-    #jpf
-    #jpf_save
-    #jp
-    #label
-    #while
+#break -> pb[i] = (jp, ss[-4]) ,i+=1
+#jp_switch -> pop(1) it pops expression, pb[ss[-1]] = (jp,i,,)
+#switch_compare -> t = gettemp , (eq,ss[-2],ss[-1],temp), i+=1, pop(1) , push temp
 
-#jp_switch
-#switch_compare -> assign temp 0 , (eq,expression,num,temp) , save for jpf --> stack: (temp,save)
-    for example:
-    4	(ASSIGN, 0, 512,   )
-    5	(EQ, 508, #1, 512 )
-    6	(JPF, 512, 8,   )
-#jp_jpf_switch
-#save_gettemp
+pb[ss[-1]] = generate_code("JPF", ss[-2], str(i + 1))
+        pb[i] = generate_code("JP", ss[-3])
+        i += 1
+        pop_ss(3)
+
+
+i
+expression
+label
+i'
+
+        
+i'
+temp
+expression
+i
+
 
 Keywords: else if int return void while switch case default break endif
 

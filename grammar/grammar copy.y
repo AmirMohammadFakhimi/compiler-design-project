@@ -43,42 +43,42 @@ statement: expression_stmt
 | switch_stmt
 | output_fun
 ;
-expression_stmt: expression ';'
-| "break" ';'
+expression_stmt: expression ';' pop
+| "break" ';' break_action
 | ';'
 ;
-selection_stmt: "if" '(' expression ')' save statement "endif"
-| "if" '(' expression ')' save statement "else" jpf_save statement "endif"
+selection_stmt: "if" '(' expression ')' save statement "endif" jpf
+| "if" '(' expression ')' save statement "else" jpf_save statement "endif" jp
 ;
-iteration_stmt: "while" label '(' expression ')' save statement
+iteration_stmt: "while" label '(' expression ')' save statement while
 ;
 return_stmt: "return" ';'
 | "return" expression ';'
 ;
-switch_stmt: "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt '}'
+switch_stmt: "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt '}' jp_switch
 ;
 case_stmts: case_stmts case_stmt
 | /* epsilon */
 ;
-case_stmt: "case" pnum NUM switch_compare save ':' statement_list
+case_stmt: "case" pnum NUM switch_compare save ':' statement_list jpf
 ;
 default_stmt: "default" ':' statement_list
 | /* epsilon */
 ;
-expression: var '=' expression
+expression: var '=' expression assign
 | simple_expression
 ;
 var: pid ID
-| pid ID '[' expression ']'
+| pid ID '[' expression ']' get_value
 ;
-simple_expression: additive_expression '<' additive_expression
-| additive_expression | additive_expression "==" additive_expression
+simple_expression: additive_expression '<' additive_expression lt
+| additive_expression | additive_expression "==" additive_expression equal
 ;
-additive_expression: additive_expression '+' term
-| term | additive_expression '-' term
+additive_expression: additive_expression '+' term add
+| term | additive_expression '-' term minus
 ;
-term: term '*' factor
-| factor | term '/' factor
+term: term '*' factor mul
+| factor | term '/' factor div
 ;
 factor: '(' expression ')'
 | var
@@ -93,7 +93,7 @@ args: arg_list
 arg_list: arg_list ',' expression
 | expression
 ;
-output_fun: "output" '(' expression ')' ';'
+output_fun: "output" '(' expression ')' output_action
 ;
 pid: /* epsilon */;
 pnum: /* epsilon */;
@@ -101,5 +101,4 @@ jpf_save: /* epsilon */;
 label: /* epsilon */;
 jp_forward: /* epsilon */;
 switch_compare: /* epsilon */;
-save: /* epsilon */;
 %%
