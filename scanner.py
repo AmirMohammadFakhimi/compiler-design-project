@@ -45,11 +45,11 @@ class NewSymbolTable:
 
     @staticmethod
     def get_address(lexeme):
-        lexeme_index = NewSymbolTable.symbol_table.index(lexeme)
-        if lexeme_index == -1:
-            return -1
+        for symbol in NewSymbolTable.symbol_table:
+            if symbol.lexeme == lexeme:
+                return symbol.address
 
-        return NewSymbolTable.symbol_table[lexeme_index].address
+        return None
 
 
 class State:
