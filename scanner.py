@@ -43,6 +43,14 @@ class NewSymbolTable:
         NewSymbolTable.symbol_table[-1].size = size
         NewSymbolTable.empty_address += size - 4
 
+    @staticmethod
+    def get_address(lexeme):
+        lexeme_index = NewSymbolTable.symbol_table.index(lexeme)
+        if lexeme_index == -1:
+            return -1
+
+        return NewSymbolTable.symbol_table[lexeme_index].address
+
 
 class State:
     start_state = None

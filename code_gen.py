@@ -19,11 +19,7 @@ def pop_ss(num):
 
 
 def getaddr(inpt):
-    table = scanner.symbol_table
-    for i in range(len(table)):
-        if table[i] == inpt:
-            return (i - 12) * 4 + 100
-    return -1
+    return scanner.NewSymbolTable.get_address(inpt)
 
 
 def gettemp():
