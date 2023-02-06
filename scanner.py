@@ -20,6 +20,29 @@ symbol_table = ["if", "else", "void", "int", "while", "break", "switch", "defaul
 tokens: dict[int, list[(str, str)]] = dict()
 errors: dict[int, list[(str, str)]] = dict()
 
+class NewSymbolTable:
+    symbol_table = []
+    empty_address = 100
+
+    def __init__(self, lexeme):
+        self.lexeme = lexeme
+        self.address = NewSymbolTable.empty_address
+        self.type = None
+        self.size = 4
+        NewSymbolTable.empty_address += self.size
+
+        NewSymbolTable.symbol_table.append(self)
+
+    @staticmethod
+    def add_type_to_last_symbol(type):
+        NewSymbolTable.symbol_table[-1].type = type
+
+    @staticmethod
+    def add_size_to_last_symbol_array(length):
+        size = 4 * length
+        NewSymbolTable.symbol_table[-1].size = size
+        NewSymbolTable.empty_address += size - 4
+
 
 class State:
     start_state = None
@@ -235,6 +258,7 @@ def add_to_symbol_table(lexeme):
     if lexeme not in symbol_table_set:
         symbol_table.append(lexeme)
         symbol_table_set.add(lexeme)
+        NewSymbolTable(lexeme)
 
 
 def add_to_dict(dictionary, key, value):

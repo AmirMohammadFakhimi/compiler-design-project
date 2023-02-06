@@ -11,7 +11,7 @@ declaration: var_declaration
 | fun_declaration 
 ;
 var_declaration: type_specifier ID ';'
-| type_specifier ID '[' pnum NUM ']' ';'
+| type_specifier ID '[' pnum add_array_type NUM ']' ';'
 ;
 type_specifier: "int" 
 | "void"
@@ -101,4 +101,5 @@ jp_forward: /* epsilon */;
 switch_compare: /* epsilon */;
 save: /* epsilon */;
 break_save: /* epsilon */;
+add_array_type: /* epsilon */;
 %%

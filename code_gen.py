@@ -35,6 +35,7 @@ def gettemp():
 def action_routine(symbol_action):
     global i
     symbol_action = int(symbol_action)
+
     if symbol_action == 64:  # pid
         current_input = parser.top_token[1]
         p = getaddr(current_input)
@@ -158,6 +159,17 @@ def action_routine(symbol_action):
         pb.append(generate_code("PRINT", ss[-1]))
         pop_ss(1)
         i = i + 1
+
+    elif symbol_action == 8: # int_type
+        scanner.NewSymbolTable.add_type_to_last_symbol("int")
+
+    elif symbol_action == 9: # void_type
+        scanner.NewSymbolTable.add_type_to_last_symbol("void")
+
+    elif symbol_action == 72:
+        scanner.NewSymbolTable.add_size_to_last_symbol_array(int(ss[-1][1:]))
+        pop_ss(1)
+
     elif symbol_action == 71:  # break_save
         break_s.append(i)
         pb.append('')
