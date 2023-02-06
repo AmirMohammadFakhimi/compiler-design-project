@@ -8,7 +8,6 @@ import os
 os.system('bison grammar.y --report=all')
 os.system('rm grammar.tab.c')
 
-
 def correct_form(token):
     token = re.sub('[\'"]', '', token)
     if token == '$end':

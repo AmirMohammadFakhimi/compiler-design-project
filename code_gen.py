@@ -129,7 +129,8 @@ def action_routine(symbol_action):
         else:
             temp = ss[-1]
 
-        addr = ss[-2] + temp
+        addr = ss[-2] + temp * 4
+        pop_ss(2)
         ss.append(addr)
 
     elif symbol_action == 28:  # pop
