@@ -1,5 +1,6 @@
 # Amir Mohammad Fakhimi : 99170531
 # Erfan Sadraiye : 99101835
+import code_gen
 import scanner
 import parser
 
@@ -57,10 +58,19 @@ def create_parse_tree_file():
     parse_tree_file = open("parse_tree.txt", 'w')
     parse_tree_file.write(parser.get_parse_tree())
 
+def create_pb_file():
+    pb_file = open("output.txt", 'w')
+    pb = code_gen.pb
+
+    line_number = 0
+    for line in pb:
+        pb_file.write(f'{line_number}\t{line}\n')
+        line_number += 1
 
 if __name__ == '__main__':
     scanner.initial_scanner()
     # create_files_for_scanner_phase()
     # scanner.run_scanner()
+    # create_files_for_parser_phase()
     parser.run_parser()
-    create_files_for_parser_phase()
+    create_pb_file()
