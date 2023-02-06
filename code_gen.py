@@ -32,7 +32,7 @@ def action_routine(symbol_action):
     elif symbol_action == "assign":
         pb[i] = generate_code("ASSIGN", ss[-1], ss[-2], )
         i += 1
-        pop_ss(2)
+        pop_ss(1)
     elif symbol_action == "add":
         t = gettemp()
         pb[i] = generate_code("ADD", ss[-1], ss[-2], t)

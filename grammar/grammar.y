@@ -10,13 +10,13 @@ declaration_list: declaration_list declaration
 declaration: var_declaration 
 | fun_declaration 
 ;
-var_declaration: type_specifier ID ';' 
-| type_specifier ID '[' NUM ']' ';'
+var_declaration: type_specifier pid ID ';'
+| type_specifier pid ID '[' pnum NUM ']' get_value ';'
 ;
 type_specifier: "int" 
 | "void"
 ;
-fun_declaration: type_specifier ID '(' params ')' compound_stmt
+fun_declaration: type_specifier pid ID '(' params ')' compound_stmt
 ;
 params: param_list
 | "void"
@@ -24,8 +24,8 @@ params: param_list
 param_list: param_list ',' param
 | param
 ;
-param: type_specifier ID
-| type_specifier ID '[' ']'
+param: type_specifier pid ID
+| type_specifier pid ID '[' ']'
 ;
 compound_stmt: '{' local_declarations statement_list '}'
 ;
@@ -46,10 +46,10 @@ expression_stmt: expression ';'
 | "break" ';'
 | ';'
 ;
-selection_stmt: "if" '(' expression ')' statement "endif"
-| "if" '(' expression ')' statement "else" statement "endif"
+selection_stmt: "if" '(' expression ')' save statement jpf "endif"
+| "if" '(' expression ')' save statement "else" jpf_save statement jp "endif"
 ;
-iteration_stmt: "while" '(' expression ')' statement
+iteration_stmt: "while" label '(' expression ')' save statement while
 ;
 return_stmt: "return" ';'
 | "return" expression ';'
@@ -64,36 +64,27 @@ case_stmt: "case" NUM ':' statement_list
 default_stmt: "default" ':' statement_list
 | /* epsilon */
 ;
-expression: var '=' expression
+expression: var '=' expression assign
 | simple_expression
 ;
-var: ID
-| ID '[' expression ']'
+var: pid ID
+| pid ID '[' expression ']' get_value
 ;
-simple_expression: additive_expression relop additive_expression
-| additive_expression
+simple_expression: additive_expression '<' additive_expression lt
+| additive_expression | additive_expression "==" additive_expression equal
 ;
-relop: '<'
-| "=="
+additive_expression: additive_expression '+' term add
+| term | additive_expression '-' term minus
 ;
-additive_expression: additive_expression addop term
-| term
-;
-addop: '+'
-| '-'
-;
-term: term mulop factor
-| factor
-;
-mulop: '*'
-| '/'
+term: term '*' factor mul
+| factor | term '/' factor div
 ;
 factor: '(' expression ')'
 | var
 | call
-| NUM
+| pnum NUM
 ;
-call: ID '(' args ')'
+call: pid ID '(' args ')'
 ;
 args: arg_list
 | /* epsilon */
@@ -101,4 +92,20 @@ args: arg_list
 arg_list: arg_list ',' expression
 | expression
 ;
+pid: /* epsilon */;
+pnum: /* epsilon */;
+assign: /* epsilon */;
+add: /* epsilon */;
+minus: /* epsilon */;
+mul: /* epsilon */;
+div: /* epsilon */;
+equal: /* epsilon */;
+lt: /* epsilon */;
+save: /* epsilon */;
+jpf: /* epsilon */;
+jpf_save: /* epsilon */;
+jp: /* epsilon */;
+label: /* epsilon */;
+while: /* epsilon */;
+get_value: /* epsilon */;
 %%

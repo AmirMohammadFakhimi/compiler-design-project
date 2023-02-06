@@ -26,7 +26,7 @@
 24. simple_expression -> additive_expression < additive_expression #lt | additive_expression |  additive_expression == additive_expression #equal
 
 26. additive_expression -> additive_expression + term #add | term | additive_expression - term #minus
-28. term -> term * factor | factor #mul | term / factor #div
+28. term -> term * factor #mul | factor | term / factor #div
 30. factor -> ( expression ) | var | call | #pnum NUM
 
 31. call -> #pid ID ( args )
