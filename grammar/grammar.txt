@@ -33,27 +33,31 @@
 32. args -> arg_list | Epsilon
 33. arg_list -> arg_list , expression | expression
 
-#pid
-#pnum
-#assign
-#add
-#minus
-#mul
-#div
-#equal
-#lt
-#save
-#jpf
-#jpf_save
-#jp
-#label
-#while  
+    #pid
+    #pnum
+    #assign
+    #add
+    #minus
+    #mul
+    #div
+
+    #equal
+    #lt
+    #save
+    #jpf
+    #jpf_save
+    #jp
+    #label
+    #while
+
+#jp_switch
 #switch_compare -> assign temp 0 , (eq,expression,num,temp) , save for jpf --> stack: (temp,save)
     for example:
     4	(ASSIGN, 0, 512,   )
     5	(EQ, 508, #1, 512 )
     6	(JPF, 512, 8,   )
-
+#jp_jpf_switch
+#save_gettemp
 
 Keywords: else if int return void while switch case default break endif
 
