@@ -67,6 +67,11 @@ def create_pb_file():
         pb_file.write(f'{line_number}\t{line}\n')
         line_number += 1
 
+def reset_compiler():
+    scanner.reset_scanner()
+    parser.reset_parser()
+    code_gen.reset_code_gen()
+
 if __name__ == '__main__':
     scanner.initial_scanner()
     # create_files_for_scanner_phase()

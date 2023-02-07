@@ -1,4 +1,7 @@
 import os
+
+import code_gen
+import parser
 import subprocess
 
 import compiler
@@ -27,14 +30,15 @@ if __name__ == '__main__':
         current_dir_input.close()
         input_file.close()
 
-        scanner.initial_scanner()
-        parser.run_parser()
-        compiler.create_pb_file()
+        compiler.reset_compiler()
+        scanner.reset_scanner()
+        parser.reset_parser()
+        code_gen.reset_code_gen()
 
-        output = subprocess.Popen('./tester_linux.out', stdout=subprocess.PIPE).communicate()[0].decode("utf-8")
-        wants_output = ""
+        output = subprocess.Popen('./tester_linux.out', stdout=subprocess.PIPE).communicate()[0]
+        wants_output = []
         for line in output.splitlines():
-            if line.startswith('PRINT'):
+            if line.startswith('PRINT'.encode()):
                 wants_output += str(line) + '\n'
 
         if wants_output == expected_output:

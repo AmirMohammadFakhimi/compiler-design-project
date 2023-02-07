@@ -20,6 +20,20 @@ symbol_table = ["if", "else", "void", "int", "while", "break", "switch", "defaul
 tokens: dict[int, list[(str, str)]] = dict()
 errors: dict[int, list[(str, str)]] = dict()
 
+def reset_scanner():
+    global buffer, buffer_size, begin_pointer, forward_pointer, number_of_line, tokens, errors, symbol_table, symbol_table_set
+    buffer = ""
+    buffer_size = 0
+    begin_pointer = 0
+    forward_pointer = 0
+    number_of_line = 1
+
+    tokens.clear()
+    errors.clear()
+
+    symbol_table_set = set(keywords)
+    symbol_table = keywords.copy()
+
 class NewSymbolTable:
     symbol_table = []
     empty_address = 100

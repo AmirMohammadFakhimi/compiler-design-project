@@ -17,6 +17,14 @@ errors = []
 tokens = {}
 top_token = None
 
+def reset_parser():
+    global stack, node_stack, root, errors, tokens, top_token
+    stack = ["0"]
+    node_stack = []
+    root = None
+    errors = []
+    tokens = {}
+    top_token = None
 
 def initial_parser(file_name="table.json"):
     global parse_table, grammar, follow, non_terminals, terminals, first

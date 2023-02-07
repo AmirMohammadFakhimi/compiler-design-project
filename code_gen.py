@@ -7,6 +7,13 @@ pb = []
 i = 0
 temp_addr = 500
 
+def reset_code_gen():
+    global break_s, ss, pb, i, temp_addr
+    break_s = []
+    ss = []
+    pb = []
+    i = 0
+    temp_addr = 500
 
 def generate_code(op, first_op, second_op="", third_op=""):
     return f'({op}, {first_op}, {second_op}, {third_op})'
