@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
         input_file = open(f'testcases/{directory_name}/input.txt', 'r')
         expected_output_file = open(f'testcases/{directory_name}/expected.txt', 'r')
-        expected_output = expected_output_file.read()
+        expected_output = expected_output_file.read().strip()
         expected_output_file.close()
 
         current_dir_input = open(f'input.txt', 'w')
@@ -31,15 +31,16 @@ if __name__ == '__main__':
         input_file.close()
 
         compiler.reset_compiler()
-        scanner.reset_scanner()
-        parser.reset_parser()
-        code_gen.reset_code_gen()
+        scanner.initial_scanner()
+        parser.run_parser()
+        compiler.create_pb_file()
 
-        output = subprocess.Popen('./tester_linux.out', stdout=subprocess.PIPE).communicate()[0]
-        wants_output = []
+        output = subprocess.Popen('./tester_linux.out', stdout=subprocess.PIPE).communicate()[0].decode('utf-8')
+        wants_output = ""
         for line in output.splitlines():
-            if line.startswith('PRINT'.encode()):
+            if line.startswith('PRINT'):
                 wants_output += str(line) + '\n'
+        wants_output = wants_output.strip()
 
         if wants_output == expected_output:
             print(f'{directory_name} passed.')

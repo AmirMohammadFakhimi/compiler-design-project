@@ -141,6 +141,7 @@ def action_routine(symbol_action):
             pb.append(generate_code("ADD", f'#{ss[-2]}', ss[-1], t2))
             pop_ss(2)
             ss.append(f'@{t2}')
+            i += 2
 
     elif symbol_action == 28:  # pop
         ss.pop()
