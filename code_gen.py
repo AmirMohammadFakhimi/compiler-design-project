@@ -7,6 +7,7 @@ pb = []
 i = 0
 temp_addr = 500
 
+
 def reset_code_gen():
     global break_s, ss, pb, i, temp_addr
     break_s = []
@@ -14,6 +15,7 @@ def reset_code_gen():
     pb = []
     i = 0
     temp_addr = 500
+
 
 def generate_code(op, first_op, second_op="", third_op=""):
     return f'({op}, {first_op}, {second_op}, {third_op})'
@@ -100,14 +102,14 @@ def action_routine(symbol_action):
         pb[ss[-1]] = generate_code("JP", i)
         ss.pop()
 
-    elif symbol_action in [31, 39] :  # jpf
+    elif symbol_action in [31, 39]:  # jpf
         pb[ss[-1]] = generate_code("JPF", ss[-2], str(i))
         pop_ss(2)
 
     elif symbol_action == 33:  # while
         pb[ss[-1]] = generate_code("JPF", ss[-2], str(i + 1))
         pb.append(generate_code("JP", ss[-3]))
-        pb[break_s[-1]] = generate_code("JP", i+1)
+        pb[break_s[-1]] = generate_code("JP", i + 1)
         i += 1
         break_s.pop()
         pop_ss(3)
@@ -127,21 +129,15 @@ def action_routine(symbol_action):
         ss.append(t)
 
     elif symbol_action == 45:  # get_value
-        if type(ss[-1]) is str: # removing #
-            temp = int(ss[-1][1:])
-            addr = ss[-2] + temp * 4
-            pop_ss(2)
-            ss.append(addr)
-        else:
-            t1 = gettemp()
-            pb.append(generate_code("MULT",'#4', ss[-1], t1))
-            pop_ss(1)
-            ss.append(t1)
-            t2 = gettemp()
-            pb.append(generate_code("ADD", f'#{ss[-2]}', ss[-1], t2))
-            pop_ss(2)
-            ss.append(f'@{t2}')
-            i += 2
+        t1 = gettemp()
+        pb.append(generate_code("MULT", '#4', ss[-1], t1))
+        pop_ss(1)
+        ss.append(t1)
+        t2 = gettemp()
+        pb.append(generate_code("ADD", f'#{ss[-2]}', ss[-1], t2))
+        pop_ss(2)
+        ss.append(f'@{t2}')
+        i += 2
 
     elif symbol_action == 28:  # pop
         ss.pop()
@@ -171,10 +167,10 @@ def action_routine(symbol_action):
         pop_ss(1)
         i = i + 1
 
-    elif symbol_action == 8: # int_type
+    elif symbol_action == 8:  # int_type
         scanner.NewSymbolTable.add_type_to_last_symbol("int")
 
-    elif symbol_action == 9: # void_type
+    elif symbol_action == 9:  # void_type
         scanner.NewSymbolTable.add_type_to_last_symbol("void")
 
     elif symbol_action == 72:
