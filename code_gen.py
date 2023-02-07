@@ -122,12 +122,18 @@ def action_routine(symbol_action):
     elif symbol_action == 45:  # get_value
         if type(ss[-1]) is str: # removing #
             temp = int(ss[-1][1:])
+            addr = ss[-2] + temp * 4
+            pop_ss(2)
+            ss.append(addr)
         else:
-            temp = ss[-1]
-
-        addr = ss[-2] + temp * 4
-        pop_ss(2)
-        ss.append(addr)
+            t1 = gettemp()
+            pb.append(generate_code("MULT",'#4', ss[-1], t1))
+            pop_ss(1)
+            ss.append(t1)
+            t2 = gettemp()
+            pb.append(generate_code("ADD", f'#{ss[-2]}', ss[-1], t2))
+            pop_ss(2)
+            ss.append(f'@{t2}')
 
     elif symbol_action == 28:  # pop
         ss.pop()
