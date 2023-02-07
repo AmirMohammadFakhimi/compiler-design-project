@@ -54,7 +54,7 @@ Grammar
    34 return_stmt: "return" ';'
    35            | "return" expression ';'
 
-   36 switch_stmt: "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: "switch" jp_forward break_save '(' expression ')' '{' case_stmts default_stmt '}'
 
    37 case_stmts: case_stmts case_stmt
    38           | ε
@@ -263,10 +263,10 @@ Nonterminals, with rules where they appear
         on right: 39
     save (69)
         on left: 70
-        on right: 31 32 33 36 39
+        on right: 31 32 33 39
     break_save (70)
         on left: 71
-        on right: 33
+        on right: 33 36
     add_array_type (71)
         on left: 72
         on right: 7
@@ -642,7 +642,7 @@ State 36
    33 iteration_stmt: • "while" jp_forward break_save label '(' expression ')' save statement
    34 return_stmt: • "return" ';'
    35            | • "return" expression ';'
-   36 switch_stmt: • "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: • "switch" jp_forward break_save '(' expression ')' '{' case_stmts default_stmt '}'
    42 expression: • var '=' expression
    43           | • simple_expression
    44 var: • pid ID
@@ -827,7 +827,7 @@ State 44
 
 State 45
 
-   36 switch_stmt: "switch" • jp_forward save '(' expression ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: "switch" • jp_forward break_save '(' expression ')' '{' case_stmts default_stmt '}'
    68 jp_forward: ε •
 
     $default  reduce using rule 68 (jp_forward)
@@ -1047,12 +1047,12 @@ State 67
 
 State 68
 
-   36 switch_stmt: "switch" jp_forward • save '(' expression ')' '{' case_stmts default_stmt '}'
-   70 save: ε •
+   36 switch_stmt: "switch" jp_forward • break_save '(' expression ')' '{' case_stmts default_stmt '}'
+   71 break_save: ε •
 
-    $default  reduce using rule 70 (save)
+    $default  reduce using rule 71 (break_save)
 
-    save  go to state 83
+    break_save  go to state 83
 
 
 State 69
@@ -1329,7 +1329,7 @@ State 82
 
 State 83
 
-   36 switch_stmt: "switch" jp_forward save • '(' expression ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: "switch" jp_forward break_save • '(' expression ')' '{' case_stmts default_stmt '}'
 
     '('  shift, and go to state 96
 
@@ -1517,7 +1517,7 @@ State 95
 
 State 96
 
-   36 switch_stmt: "switch" jp_forward save '(' • expression ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: "switch" jp_forward break_save '(' • expression ')' '{' case_stmts default_stmt '}'
    42 expression: • var '=' expression
    43           | • simple_expression
    44 var: • pid ID
@@ -1605,7 +1605,7 @@ State 101
    33 iteration_stmt: • "while" jp_forward break_save label '(' expression ')' save statement
    34 return_stmt: • "return" ';'
    35            | • "return" expression ';'
-   36 switch_stmt: • "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: • "switch" jp_forward break_save '(' expression ')' '{' case_stmts default_stmt '}'
    42 expression: • var '=' expression
    43           | • simple_expression
    44 var: • pid ID
@@ -1699,7 +1699,7 @@ State 102
 
 State 103
 
-   36 switch_stmt: "switch" jp_forward save '(' expression • ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: "switch" jp_forward break_save '(' expression • ')' '{' case_stmts default_stmt '}'
 
     ')'  shift, and go to state 109
 
@@ -1776,7 +1776,7 @@ State 108
 
 State 109
 
-   36 switch_stmt: "switch" jp_forward save '(' expression ')' • '{' case_stmts default_stmt '}'
+   36 switch_stmt: "switch" jp_forward break_save '(' expression ')' • '{' case_stmts default_stmt '}'
 
     '{'  shift, and go to state 114
 
@@ -1817,7 +1817,7 @@ State 113
 
 State 114
 
-   36 switch_stmt: "switch" jp_forward save '(' expression ')' '{' • case_stmts default_stmt '}'
+   36 switch_stmt: "switch" jp_forward break_save '(' expression ')' '{' • case_stmts default_stmt '}'
    37 case_stmts: • case_stmts case_stmt
    38           | ε •
 
@@ -1844,7 +1844,7 @@ State 115
    33 iteration_stmt: • "while" jp_forward break_save label '(' expression ')' save statement
    34 return_stmt: • "return" ';'
    35            | • "return" expression ';'
-   36 switch_stmt: • "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: • "switch" jp_forward break_save '(' expression ')' '{' case_stmts default_stmt '}'
    42 expression: • var '=' expression
    43           | • simple_expression
    44 var: • pid ID
@@ -1914,7 +1914,7 @@ State 116
    33               | "while" jp_forward break_save label '(' expression ')' save • statement
    34 return_stmt: • "return" ';'
    35            | • "return" expression ';'
-   36 switch_stmt: • "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: • "switch" jp_forward break_save '(' expression ')' '{' case_stmts default_stmt '}'
    42 expression: • var '=' expression
    43           | • simple_expression
    44 var: • pid ID
@@ -1968,7 +1968,7 @@ State 116
 
 State 117
 
-   36 switch_stmt: "switch" jp_forward save '(' expression ')' '{' case_stmts • default_stmt '}'
+   36 switch_stmt: "switch" jp_forward break_save '(' expression ')' '{' case_stmts • default_stmt '}'
    37 case_stmts: case_stmts • case_stmt
    39 case_stmt: • "case" pnum NUM switch_compare save ':' statement_list
    40 default_stmt: • "default" ':' statement_list
@@ -2023,7 +2023,7 @@ State 122
 
 State 123
 
-   36 switch_stmt: "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt • '}'
+   36 switch_stmt: "switch" jp_forward break_save '(' expression ')' '{' case_stmts default_stmt • '}'
 
     '}'  shift, and go to state 127
 
@@ -2055,7 +2055,7 @@ State 126
 
 State 127
 
-   36 switch_stmt: "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt '}' •
+   36 switch_stmt: "switch" jp_forward break_save '(' expression ')' '{' case_stmts default_stmt '}' •
 
     $default  reduce using rule 36 (switch_stmt)
 
@@ -2088,7 +2088,7 @@ State 129
    33 iteration_stmt: • "while" jp_forward break_save label '(' expression ')' save statement
    34 return_stmt: • "return" ';'
    35            | • "return" expression ';'
-   36 switch_stmt: • "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: • "switch" jp_forward break_save '(' expression ')' '{' case_stmts default_stmt '}'
    40 default_stmt: "default" ':' statement_list •  ['}']
    42 expression: • var '=' expression
    43           | • simple_expression
@@ -2188,7 +2188,7 @@ State 133
    33 iteration_stmt: • "while" jp_forward break_save label '(' expression ')' save statement
    34 return_stmt: • "return" ';'
    35            | • "return" expression ';'
-   36 switch_stmt: • "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: • "switch" jp_forward break_save '(' expression ')' '{' case_stmts default_stmt '}'
    39 case_stmt: "case" pnum NUM switch_compare save ':' statement_list •  ['}', "case", "default"]
    42 expression: • var '=' expression
    43           | • simple_expression

@@ -54,7 +54,7 @@ iteration_stmt: "while" jp_forward break_save label '(' expression ')' save stat
 return_stmt: "return" ';'
 | "return" expression ';'
 ;
-switch_stmt: "switch" jp_forward save '(' expression ')' '{' case_stmts default_stmt '}'
+switch_stmt: "switch" jp_forward break_save '(' expression ')' '{' case_stmts default_stmt '}'
 ;
 case_stmts: case_stmts case_stmt
 | /* epsilon */

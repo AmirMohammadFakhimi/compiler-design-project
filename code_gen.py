@@ -151,8 +151,8 @@ def action_routine(symbol_action):
 
     elif symbol_action == 36:  # switch end
         pop_ss(1)  # pops expression
-        pb[ss[-1]] = generate_code("JP", i)
-        pop_ss(1)  # pops i
+        pb[break_s[-1]] = generate_code("JP", i)
+        break_s.pop()  # pops i
 
     elif symbol_action == 68:  # jp_forward
         pb.append(generate_code("JP", i + 2))

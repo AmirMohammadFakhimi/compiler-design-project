@@ -1,10 +1,15 @@
 import os
 import subprocess
 
+import compiler
+import parser
+import scanner
+
 # just for LINUX
 if __name__ == '__main__':
     # test_directories = os.listdir('testcases')
     test_directories = []
+
     for i in range(1, 10):
         test_directories.append(f'T{i}')
 
@@ -13,7 +18,7 @@ if __name__ == '__main__':
             continue
 
         input_file = open(f'testcases/{directory_name}/input.txt', 'r')
-        expected_output_file = open(f'testcases/{directory_name}/output.txt', 'r')
+        expected_output_file = open(f'testcases/{directory_name}/expected.txt', 'r')
         expected_output = expected_output_file.read()
         expected_output_file.close()
 
@@ -22,13 +27,17 @@ if __name__ == '__main__':
         current_dir_input.close()
         input_file.close()
 
-        output = subprocess.Popen('./tester_linux.out', stdout=subprocess.PIPE).communicate()[0]
-        wants_output = []
+        scanner.initial_scanner()
+        parser.run_parser()
+        compiler.create_pb_file()
+
+        output = subprocess.Popen('./tester_linux.out', stdout=subprocess.PIPE).communicate()[0].decode("utf-8")
+        wants_output = ""
         for line in output.splitlines():
             if line.startswith('PRINT'):
-                wants_output.append(line)
+                wants_output += str(line) + '\n'
 
-        if output == expected_output:
+        if wants_output == expected_output:
             print(f'{directory_name} passed.')
         else:
             print(f'{directory_name} failed.')
