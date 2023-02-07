@@ -13,7 +13,7 @@ if __name__ == '__main__':
             continue
 
         input_file = open(f'testcases/{directory_name}/input.txt', 'r')
-        expected_otestutput_file = open(f'testcases/{directory_name}/output.txt', 'r')
+        expected_output_file = open(f'testcases/{directory_name}/output.txt', 'r')
         expected_output = expected_output_file.read()
         expected_output_file.close()
 
@@ -23,6 +23,10 @@ if __name__ == '__main__':
         input_file.close()
 
         output = subprocess.Popen('./tester_linux.out', stdout=subprocess.PIPE).communicate()[0]
+        wants_output = []
+        for line in output.splitlines():
+            if line.startswith('PRINT'):
+                wants_output.append(line)
 
         if output == expected_output:
             print(f'{directory_name} passed.')
