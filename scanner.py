@@ -20,6 +20,7 @@ symbol_table = ["if", "else", "void", "int", "while", "break", "switch", "defaul
 tokens: dict[int, list[(str, str)]] = dict()
 errors: dict[int, list[(str, str)]] = dict()
 
+
 def reset_scanner():
     global buffer, buffer_size, begin_pointer, forward_pointer, number_of_line, tokens, errors, symbol_table, symbol_table_set
     buffer = ""
@@ -34,6 +35,7 @@ def reset_scanner():
     symbol_table_set = set(keywords)
     symbol_table = keywords.copy()
 
+
 class NewSymbolTable:
     symbol_table = []
     empty_address = 100
@@ -43,6 +45,8 @@ class NewSymbolTable:
         self.address = NewSymbolTable.empty_address
         self.type = None
         self.size = 4
+        self.return_value_address = None
+        self.return_address = None
         NewSymbolTable.empty_address += self.size
 
         NewSymbolTable.symbol_table.append(self)
@@ -63,6 +67,13 @@ class NewSymbolTable:
             if symbol.lexeme == lexeme:
                 return symbol.address
 
+        return None
+
+    @staticmethod
+    def get_row(lexeme):
+        for symbol in NewSymbolTable.symbol_table:
+            if symbol.lexeme == lexeme:
+                return symbol
         return None
 
 

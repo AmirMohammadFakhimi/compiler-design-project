@@ -13,16 +13,20 @@ def create_files_for_scanner_phase():
 
 def create_symbol_table_file():
     symbol_table_file = open("symbol_table.txt", 'w')
-    symbol_table = scanner.symbol_table
+    symbol_table = scanner.NewSymbolTable.symbol_table
 
-    symbol_number: int
-    for symbol_number in range(1, len(symbol_table) + 1):
-        symbol_table_file.write(f'{symbol_number}.\t{symbol_table[symbol_number - 1]}\n')
-
+    symbol_table_file.write("{:<8} {:<15} {:<10} {:<10}\n".format(" ", "lexeme", "type", "address"))
+    symbol_number = 1
     for keyword in scanner.keywords:
-        if keyword not in scanner.symbol_table:
-            symbol_number += 1
-            symbol_table_file.write(f'{symbol_number}.\t{keyword}\n')
+        symbol_number += 1
+        symbol_table_file.write("{:<8} {:<15}\n".format(symbol_number, keyword))
+    symbol_number = len(scanner.keywords)
+    for i in range(len(symbol_table)):
+        row = symbol_table[i]
+        row = [symbol_number, row.lexeme, row.type, row.address]
+        row = [str(a) for a in row]
+        symbol_table_file.write("{:<8} {:<15} {:<10} {:<10}\n".format(*row))
+        symbol_number += 1
 
     symbol_table_file.close()
 
@@ -58,6 +62,7 @@ def create_parse_tree_file():
     parse_tree_file = open("parse_tree.txt", 'w')
     parse_tree_file.write(parser.get_parse_tree())
 
+
 def create_pb_file():
     pb_file = open("output.txt", 'w')
     pb = code_gen.pb
@@ -67,10 +72,12 @@ def create_pb_file():
         pb_file.write(f'{line_number}\t{line}\n')
         line_number += 1
 
+
 def reset_compiler():
     scanner.reset_scanner()
     parser.reset_parser()
     code_gen.reset_code_gen()
+
 
 if __name__ == '__main__':
     scanner.initial_scanner()
@@ -79,3 +86,4 @@ if __name__ == '__main__':
     # create_files_for_parser_phase()
     parser.run_parser()
     create_pb_file()
+    create_symbol_table_file()
