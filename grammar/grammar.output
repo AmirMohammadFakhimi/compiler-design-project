@@ -16,7 +16,7 @@ Grammar
     8 type_specifier: "int"
     9               | "void"
 
-   10 fun_declaration: type_specifier ID add_func_type '(' params ')' compound_stmt
+   10 fun_declaration: type_specifier ID add_func_kind '(' params ')' compound_stmt
 
    11 params: param_list
    12       | "void"
@@ -113,7 +113,7 @@ Grammar
 
    72 add_array_type_kind: ε
 
-   73 add_func_type: ε
+   73 add_func_kind: ε
 
 
 Terminals, with rules where they appear
@@ -272,7 +272,7 @@ Nonterminals, with rules where they appear
     add_array_type_kind (71)
         on left: 72
         on right: 7
-    add_func_type (72)
+    add_func_kind (72)
         on left: 73
         on right: 10
 
@@ -289,7 +289,7 @@ State 0
     7                | • type_specifier ID '[' pnum add_array_type_kind NUM ']' ';'
     8 type_specifier: • "int"
     9               | • "void"
-   10 fun_declaration: • type_specifier ID add_func_type '(' params ')' compound_stmt
+   10 fun_declaration: • type_specifier ID add_func_kind '(' params ')' compound_stmt
 
     "int"   shift, and go to state 1
     "void"  shift, and go to state 2
@@ -333,7 +333,7 @@ State 4
     7                | • type_specifier ID '[' pnum add_array_type_kind NUM ']' ';'
     8 type_specifier: • "int"
     9               | • "void"
-   10 fun_declaration: • type_specifier ID add_func_type '(' params ')' compound_stmt
+   10 fun_declaration: • type_specifier ID add_func_kind '(' params ')' compound_stmt
 
     "int"   shift, and go to state 1
     "void"  shift, and go to state 2
@@ -364,7 +364,7 @@ State 7
 
     6 var_declaration: type_specifier • ID ';'
     7                | type_specifier • ID '[' pnum add_array_type_kind NUM ']' ';'
-   10 fun_declaration: type_specifier • ID add_func_type '(' params ')' compound_stmt
+   10 fun_declaration: type_specifier • ID add_func_kind '(' params ')' compound_stmt
 
     ID  shift, and go to state 11
 
@@ -394,15 +394,15 @@ State 11
 
     6 var_declaration: type_specifier ID • ';'
     7                | type_specifier ID • '[' pnum add_array_type_kind NUM ']' ';'
-   10 fun_declaration: type_specifier ID • add_func_type '(' params ')' compound_stmt
-   73 add_func_type: ε •  ['(']
+   10 fun_declaration: type_specifier ID • add_func_kind '(' params ')' compound_stmt
+   73 add_func_kind: ε •  ['(']
 
     ';'  shift, and go to state 12
     '['  shift, and go to state 13
 
-    $default  reduce using rule 73 (add_func_type)
+    $default  reduce using rule 73 (add_func_kind)
 
-    add_func_type  go to state 14
+    add_func_kind  go to state 14
 
 
 State 12
@@ -424,7 +424,7 @@ State 13
 
 State 14
 
-   10 fun_declaration: type_specifier ID add_func_type • '(' params ')' compound_stmt
+   10 fun_declaration: type_specifier ID add_func_kind • '(' params ')' compound_stmt
 
     '('  shift, and go to state 16
 
@@ -443,7 +443,7 @@ State 16
 
     8 type_specifier: • "int"
     9               | • "void"
-   10 fun_declaration: type_specifier ID add_func_type '(' • params ')' compound_stmt
+   10 fun_declaration: type_specifier ID add_func_kind '(' • params ')' compound_stmt
    11 params: • param_list
    12       | • "void"
    13 param_list: • param_list ',' param
@@ -486,7 +486,7 @@ State 19
 
 State 20
 
-   10 fun_declaration: type_specifier ID add_func_type '(' params • ')' compound_stmt
+   10 fun_declaration: type_specifier ID add_func_kind '(' params • ')' compound_stmt
 
     ')'  shift, and go to state 25
 
@@ -527,7 +527,7 @@ State 24
 
 State 25
 
-   10 fun_declaration: type_specifier ID add_func_type '(' params ')' • compound_stmt
+   10 fun_declaration: type_specifier ID add_func_kind '(' params ')' • compound_stmt
    17 compound_stmt: • '{' local_declarations statement_list '}'
 
     '{'  shift, and go to state 29
@@ -577,7 +577,7 @@ State 29
 
 State 30
 
-   10 fun_declaration: type_specifier ID add_func_type '(' params ')' compound_stmt •
+   10 fun_declaration: type_specifier ID add_func_kind '(' params ')' compound_stmt •
 
     $default  reduce using rule 10 (fun_declaration)
 
