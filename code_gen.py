@@ -176,11 +176,24 @@ def action_routine(symbol_action):
     elif symbol_action == 9:  # void_type
         scanner.NewSymbolTable.add_type_to_last_symbol("void")
 
-    elif symbol_action == 72:
-        scanner.NewSymbolTable.add_size_to_last_symbol_array(int(semantic_stack[-1][1:]))
-        pop_ss(1)
-
     elif symbol_action == 71:  # break_save
         break_s.append(i)
         pb.append('')
         i += 1
+
+    elif symbol_action == 72: # add_array_type_kind
+        scanner.NewSymbolTable.add_size_to_last_symbol_array(int(semantic_stack[-1][1:]))
+        scanner.NewSymbolTable.add_kind_to_last_symbol("arr")
+        pop_ss(1)
+
+    elif symbol_action in [6, 15]: # add_var_kind
+        scanner.NewSymbolTable.add_kind_to_last_symbol("var")
+
+    elif symbol_action == 73: # add_func_kind
+        scanner.NewSymbolTable.add_kind_to_last_symbol("func")
+
+    elif symbol_action == 16: # add_arr_kind
+        scanner.NewSymbolTable.add_kind_to_last_symbol("arr")
+
+    elif symbol_action in [13, 14]: # add_one_arg
+        scanner.NewSymbolTable.add_one_arg()

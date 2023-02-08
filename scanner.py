@@ -45,6 +45,8 @@ class NewSymbolTable:
         self.address = NewSymbolTable.empty_address
         self.type = None
         self.size = 4
+        self.kind = None # var/func/arr
+        self.no_of_args = 0
         self.return_value_address = None
         self.return_address = None
         NewSymbolTable.empty_address += self.size
@@ -68,6 +70,18 @@ class NewSymbolTable:
                 return symbol.address
 
         return None
+
+    @staticmethod
+    def add_kind_to_last_symbol(kind):
+        NewSymbolTable.symbol_table[-1].kind = kind
+
+    @staticmethod
+    def add_one_arg():
+        i = -1
+        while (NewSymbolTable.symbol_table[i].kind != "func"):
+            i -= 1
+        NewSymbolTable.symbol_table[i].no_of_args += 1
+
 
     @staticmethod
     def get_row(lexeme):
