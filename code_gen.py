@@ -12,6 +12,7 @@ temp_addr = 500
 scope_stack = [0]
 scope = 0
 
+
 def reset_code_gen():
     global break_s, semantic_stack, pb, i, temp_addr
     break_s = []
@@ -44,7 +45,6 @@ def gettemp():
 def action_routine(symbol_action):
     global i, scope, scope_stack
     symbol_action = int(symbol_action)
-
     if symbol_action == 64:  # pid
         current_input = parser.top_token[1]
         p = getaddr(current_input)
@@ -192,7 +192,6 @@ def action_routine(symbol_action):
 
     elif symbol_action == 15:  # add_var_kind_args
         scanner.NewSymbolTable.add_kind_to_last_symbol("var")
-        scanner.NewSymbolTable.set_temp_reg_to_last_symbol(gettemp())
 
     elif symbol_action == 73:  # add_func_kind
         scanner.NewSymbolTable.add_kind_to_last_symbol("func")
@@ -201,17 +200,16 @@ def action_routine(symbol_action):
 
     elif symbol_action == 16:  # add_arr_kind_args
         scanner.NewSymbolTable.add_kind_to_last_symbol("arr")
-        scanner.NewSymbolTable.set_temp_reg_to_last_symbol(gettemp())
 
     elif symbol_action in [13, 14]:  # add_one_arg
         scanner.NewSymbolTable.add_one_arg()
 
     elif symbol_action == 74:  # add_scope
         compiler.create_symbol_table_file()
-        scope += 1
-        scope_stack.append(scope)
+        scope_stack.append(len(scanner.NewSymbolTable.symbol_table))
 
     elif symbol_action == 10:  # remove_scope
+        compiler.create_symbol_table_file()
         scanner.NewSymbolTable.remove_scope()
-        scope -= 1
         scope_stack.pop()
+

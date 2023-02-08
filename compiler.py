@@ -10,7 +10,6 @@ def create_files_for_scanner_phase():
     create_file_from_dict(open("tokens.txt", 'w'), scanner.tokens)
     create_file_from_dict(open("lexical_errors.txt", 'w'), scanner.errors, "There is no lexical error.")
 
-
 def create_symbol_table_file():
     symbol_table_file = open("symbol_table.txt", 'w')
     symbol_table = scanner.NewSymbolTable.symbol_table

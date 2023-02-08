@@ -46,11 +46,10 @@ class NewSymbolTable:
         self.address = NewSymbolTable.empty_address
         self.type = None
         self.size = 4
-        self.kind = None # var/func/arr
+        self.kind = None  # var/func/arr
         self.no_of_args = 0
         self.return_value_address = None
         self.start_address = None
-        self.temp_address = None
         NewSymbolTable.empty_address += self.size
 
         NewSymbolTable.symbol_table.append(self)
@@ -78,10 +77,6 @@ class NewSymbolTable:
         NewSymbolTable.symbol_table[-1].kind = kind
 
     @staticmethod
-    def set_temp_reg_to_last_symbol(temp_address):
-        NewSymbolTable.symbol_table[-1].temp_address = temp_address
-
-    @staticmethod
     def set_return_value_address_to_last_symbol(return_value_address):
         NewSymbolTable.symbol_table[-1].return_value_address = return_value_address
 
@@ -96,7 +91,6 @@ class NewSymbolTable:
             i -= 1
         NewSymbolTable.symbol_table[i].no_of_args += 1
 
-
     @staticmethod
     def get_row(lexeme):
         for symbol in NewSymbolTable.symbol_table:
@@ -106,8 +100,8 @@ class NewSymbolTable:
 
     @staticmethod
     def remove_scope():
-        second_last_scope = code_gen.scope_stack[-2]
-        NewSymbolTable.symbol_table = NewSymbolTable.symbol_table[:second_last_scope + 1]
+        second_last_scope = code_gen.scope_stack[-1]
+        NewSymbolTable.symbol_table = NewSymbolTable.symbol_table[:second_last_scope]
 
 
 class State:
@@ -321,7 +315,8 @@ def handle_output_token(current_token, lexeme):
 
 def add_to_symbol_table(lexeme):
     global symbol_table_set, symbol_table
-    if lexeme not in symbol_table_set:
+    current_scope_lexemes = [symbol.lexeme for symbol in NewSymbolTable.symbol_table[code_gen.scope_stack[-1]:]]
+    if lexeme not in current_scope_lexemes and lexeme not in keywords:
         symbol_table.append(lexeme)
         symbol_table_set.add(lexeme)
         NewSymbolTable(lexeme)
