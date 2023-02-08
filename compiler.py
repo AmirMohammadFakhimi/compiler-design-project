@@ -72,6 +72,16 @@ def create_pb_file():
         pb_file.write(f'{line_number}\t{line}\n')
         line_number += 1
 
+def create_semantic_errors_file():
+    semantic_errors_file = open("semantic_errors.txt", 'w')
+    semantic_errors = code_gen.semantic_errors
+
+    if len(semantic_errors) == 0:
+        semantic_errors_file.write("The input program is semantically correct")
+    else:
+        for error in semantic_errors:
+            semantic_errors_file.write(f'#{scanner.number_of_line} : {error}\n')
+
 
 def reset_compiler():
     scanner.reset_scanner()
@@ -87,3 +97,4 @@ if __name__ == '__main__':
     parser.run_parser()
     create_pb_file()
     create_symbol_table_file()
+    create_semantic_errors_file()
