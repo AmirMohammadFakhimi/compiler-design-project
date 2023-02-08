@@ -15,7 +15,8 @@ def create_symbol_table_file():
     symbol_table_file = open("symbol_table.txt", 'w')
     symbol_table = scanner.NewSymbolTable.symbol_table
 
-    symbol_table_file.write("{:<8} {:<15} {:<10} {:<10} {:<10} {:<8}\n".format(" ", "lexeme", "type", "address", "kind","no_args"))
+    symbol_table_file.write(
+        "{:<8} {:<15} {:<10} {:<10} {:<10} {:<8}\n".format(" ", "lexeme", "type", "address", "kind", "no_args"))
     symbol_number = 1
     for keyword in scanner.keywords:
         symbol_number += 1
@@ -23,7 +24,7 @@ def create_symbol_table_file():
     symbol_number = len(scanner.keywords)
     for i in range(len(symbol_table)):
         row = symbol_table[i]
-        row = [symbol_number, row.lexeme, row.type, row.address, row.kind,row.no_of_args]
+        row = [symbol_number, row.lexeme, row.type, row.address, row.kind, row.no_of_args]
         row = [str(a) for a in row]
         symbol_table_file.write("{:<8} {:<15} {:<10} {:<10} {:<10} {:<8}\n".format(*row))
         symbol_number += 1
@@ -71,6 +72,7 @@ def create_pb_file():
     for line in pb:
         pb_file.write(f'{line_number}\t{line}\n')
         line_number += 1
+
 
 def create_semantic_errors_file():
     semantic_errors_file = open("semantic_errors.txt", 'w')

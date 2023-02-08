@@ -1,0 +1,17 @@
+         lexeme          type       address    kind       no_args 
+2        if             
+3        else           
+4        void           
+5        int            
+6        while          
+7        break          
+8        switch         
+9        default        
+10       case           
+11       return         
+12       endif          
+11       a               int        100        func       1       
+12       b               None       104        None       0       
+13       main            int        108        var        0       
+14       c               int        112        var        0       
+15       output          None       116        None       0       

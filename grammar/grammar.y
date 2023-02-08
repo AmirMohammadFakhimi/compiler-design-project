@@ -11,12 +11,12 @@ declaration: var_declaration
 | fun_declaration 
 ;
 var_declaration: type_specifier ID ';'
-| type_specifier ID '[' pnum add_array_type NUM ']' ';'
+| type_specifier ID '[' pnum add_array_type_kind NUM ']' ';'
 ;
 type_specifier: "int" 
 | "void"
 ;
-fun_declaration: type_specifier ID '(' params ')' compound_stmt
+fun_declaration: type_specifier ID add_func_type '(' params ')' compound_stmt
 ;
 params: param_list
 | "void"
@@ -101,5 +101,6 @@ jp_forward: /* epsilon */;
 switch_compare: /* epsilon */;
 save: /* epsilon */;
 break_save: /* epsilon */;
-add_array_type: /* epsilon */;
+add_array_type_kind: /* epsilon */;
+add_func_type: /* epsilon */;
 %%
