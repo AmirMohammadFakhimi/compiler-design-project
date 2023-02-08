@@ -48,7 +48,8 @@ class NewSymbolTable:
         self.kind = None # var/func/arr
         self.no_of_args = 0
         self.return_value_address = None
-        self.return_address = None
+        self.start_address = None
+        self.temp_address = None
         NewSymbolTable.empty_address += self.size
 
         NewSymbolTable.symbol_table.append(self)
@@ -74,6 +75,18 @@ class NewSymbolTable:
     @staticmethod
     def add_kind_to_last_symbol(kind):
         NewSymbolTable.symbol_table[-1].kind = kind
+
+    @staticmethod
+    def set_temp_reg_to_last_symbol(temp_address):
+        NewSymbolTable.symbol_table[-1].temp_address = temp_address
+
+    @staticmethod
+    def set_return_value_address_to_last_symbol(return_value_address):
+        NewSymbolTable.symbol_table[-1].return_value_address = return_value_address
+
+    @staticmethod
+    def set_start_address_to_last_symbol(start_address):
+        NewSymbolTable.symbol_table[-1].start_address = start_address
 
     @staticmethod
     def add_one_arg():
