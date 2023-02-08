@@ -10,13 +10,13 @@ declaration_list: declaration_list declaration
 declaration: var_declaration 
 | fun_declaration 
 ;
-var_declaration: type_specifier ID ';'
-| type_specifier ID '[' pnum add_array_type_kind NUM ']' ';'
+var_declaration: type_specifier pid ID ';'
+| type_specifier pid ID '[' pnum add_array_type_kind NUM ']' ';'
 ;
 type_specifier: "int" 
 | "void"
 ;
-fun_declaration: type_specifier ID add_func_kind add_scope '(' params ')' compound_stmt
+fun_declaration: type_specifier pid ID add_func_kind add_scope '(' params ')' compound_stmt
 ;
 params: param_list
 | "void"
@@ -24,8 +24,8 @@ params: param_list
 param_list: param_list ',' param
 | param
 ;
-param: type_specifier ID
-| type_specifier ID '[' ']'
+param: type_specifier pid ID
+| type_specifier pid ID '[' ']'
 ;
 compound_stmt: '{' local_declarations statement_list '}'
 ;
@@ -85,7 +85,6 @@ factor: '(' expression ')'
 | pnum NUM
 ;
 call: pid ID '(' args ')'
-//call: "output" '(' args ')'
 ;
 args: arg_list
 | /* epsilon */

@@ -8,7 +8,7 @@ semantic_errors = []
 pb = []
 i = 0
 temp_addr = 500
-
+return_addresses = []
 scope_stack = [0]
 scope = 0
 
@@ -44,6 +44,7 @@ def gettemp():
 
 def action_routine(symbol_action):
     global i, scope, scope_stack
+    print(semantic_stack)
     symbol_action = int(symbol_action)
     if symbol_action == 64:  # pid
         current_input = parser.top_token[1]
@@ -143,7 +144,7 @@ def action_routine(symbol_action):
         semantic_stack.append(f'@{t2}')
         i += 2
 
-    elif symbol_action == 28:  # pop
+    elif symbol_action in [7,28]:  # pop
         semantic_stack.pop()
 
     elif symbol_action == 29:  # break action
@@ -169,6 +170,7 @@ def action_routine(symbol_action):
     elif symbol_action == 59:  # output
         pb.append(generate_code("PRINT", semantic_stack[-1]))
         pop_semantic_stack(1)
+        pop_semantic_stack(1)
         i = i + 1
 
     elif symbol_action == 8:  # int_type
@@ -189,27 +191,43 @@ def action_routine(symbol_action):
 
     elif symbol_action == 6:  # add_var_kind
         scanner.NewSymbolTable.add_kind_to_last_symbol("var")
+        pop_semantic_stack(1)
 
     elif symbol_action == 15:  # add_var_kind_args
         scanner.NewSymbolTable.add_kind_to_last_symbol("var")
+        pop_semantic_stack(1)
 
     elif symbol_action == 73:  # add_func_kind
         scanner.NewSymbolTable.add_kind_to_last_symbol("func")
-        scanner.NewSymbolTable.set_return_value_address_to_last_symbol(gettemp())
+        scanner.NewSymbolTable.set_return_address_to_last_symbol(gettemp())
+        scanner.NewSymbolTable.set_return_value_to_last_symbol(gettemp())
         scanner.NewSymbolTable.set_start_address_to_last_symbol(i)
 
     elif symbol_action == 16:  # add_arr_kind_args
         scanner.NewSymbolTable.add_kind_to_last_symbol("arr")
+        pop_semantic_stack(1)
 
     elif symbol_action in [13, 14]:  # add_one_arg
         scanner.NewSymbolTable.add_one_arg()
 
     elif symbol_action == 74:  # add_scope
-        compiler.create_symbol_table_file()
         scope_stack.append(len(scanner.NewSymbolTable.symbol_table))
 
     elif symbol_action == 10:  # remove_scope
         compiler.create_symbol_table_file()
-        scanner.NewSymbolTable.remove_scope()
+        # scanner.NewSymbolTable.remove_scope()
         scope_stack.pop()
+        compiler.create_symbol_table_file()
 
+    elif symbol_action == 35:  # return expression
+        function_symbol = scanner.NewSymbolTable.get_row_by_address(semantic_stack[-2])
+        pb.append(generate_code("ASSIGN", semantic_stack[-1], function_symbol.return_value))
+        i += 1
+        pop_semantic_stack(2)
+        pb.append(generate_code("JP", f'@{function_symbol.return_address}'))
+        i += 1
+    elif symbol_action == 34:  # return
+        function_symbol = scanner.NewSymbolTable.get_row_by_address(semantic_stack[-1])
+        pop_semantic_stack(1)
+        pb.append(generate_code("JP", f'@{function_symbol.return_address}'))
+        i += 1

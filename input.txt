@@ -1,9 +1,10 @@
 /* sample 1 */
 
 
-int a(int x[]){
-    int b[123];
-    b = 1;
+int a(void){
+    int b;
+    b = 12;
+    return b;
 }
 
 void main(void){

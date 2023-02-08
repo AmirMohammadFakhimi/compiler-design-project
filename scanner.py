@@ -48,7 +48,8 @@ class NewSymbolTable:
         self.size = 4
         self.kind = None  # var/func/arr
         self.no_of_args = 0
-        self.return_value_address = None
+        self.return_address = None
+        self.return_value = None
         self.start_address = None
         NewSymbolTable.empty_address += self.size
 
@@ -77,8 +78,12 @@ class NewSymbolTable:
         NewSymbolTable.symbol_table[-1].kind = kind
 
     @staticmethod
-    def set_return_value_address_to_last_symbol(return_value_address):
-        NewSymbolTable.symbol_table[-1].return_value_address = return_value_address
+    def set_return_address_to_last_symbol(return_address):
+        NewSymbolTable.symbol_table[-1].return_address = return_address
+
+    @staticmethod
+    def set_return_value_to_last_symbol(return_value):
+        NewSymbolTable.symbol_table[-1].return_value = return_value
 
     @staticmethod
     def set_start_address_to_last_symbol(start_address):
@@ -92,9 +97,9 @@ class NewSymbolTable:
         NewSymbolTable.symbol_table[i].no_of_args += 1
 
     @staticmethod
-    def get_row(lexeme):
+    def get_row_by_address(address):
         for symbol in NewSymbolTable.symbol_table:
-            if symbol.lexeme == lexeme:
+            if symbol.address == address:
                 return symbol
         return None
 
