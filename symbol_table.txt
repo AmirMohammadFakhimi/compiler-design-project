@@ -11,7 +11,3 @@
 11       return         
 12       endif          
 11       a               int        100        func       1       
-12       b               None       104        None       0       
-13       main            int        108        var        0       
-14       c               int        112        var        0       
-15       output          None       116        None       0       

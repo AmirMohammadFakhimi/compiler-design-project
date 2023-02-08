@@ -1,3 +1,4 @@
+import code_gen
 from custom_token import Token
 
 buffer = ""
@@ -102,6 +103,11 @@ class NewSymbolTable:
             if symbol.lexeme == lexeme:
                 return symbol
         return None
+
+    @staticmethod
+    def remove_scope():
+        second_last_scope = code_gen.scope_stack[-2]
+        NewSymbolTable.symbol_table = NewSymbolTable.symbol_table[:second_last_scope + 1]
 
 
 class State:

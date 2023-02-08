@@ -16,7 +16,7 @@ var_declaration: type_specifier ID ';'
 type_specifier: "int" 
 | "void"
 ;
-fun_declaration: type_specifier ID add_func_kind '(' params ')' compound_stmt
+fun_declaration: type_specifier ID add_func_kind add_scope '(' params ')' compound_stmt
 ;
 params: param_list
 | "void"
@@ -103,4 +103,5 @@ save: /* epsilon */;
 break_save: /* epsilon */;
 add_array_type_kind: /* epsilon */;
 add_func_kind: /* epsilon */;
+add_scope: /* epsilon */;
 %%
