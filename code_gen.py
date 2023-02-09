@@ -35,7 +35,11 @@ def pop_semantic_stack(num):
 
 
 def getaddr(inpt):
-    return scanner.NewSymbolTable.get_address(inpt)
+    inpt_scope = scanner.NewSymbolTable.get_scope(inpt)
+    if inpt in [symbol.lexeme for symbol in scanner.NewSymbolTable.get_current_scope_symbols()] or inpt_scope < scope:
+        return scanner.NewSymbolTable.get_address(inpt)
+    else:
+        semantic_errors.append(f"Semantic Error! '{inpt}' is not defined.")
 
 
 def gettemp():
@@ -47,6 +51,7 @@ def gettemp():
 def action_routine(symbol_action):
     global i, scope, scope_stack, current_function, arg_num
     symbol_action = int(symbol_action)
+
     if symbol_action == 64:  # pid
         current_input = parser.top_token[1]
         p = getaddr(current_input)
@@ -229,12 +234,14 @@ def action_routine(symbol_action):
 
     elif symbol_action == 74:  # add_scope
         scope_stack.append(len(scanner.NewSymbolTable.symbol_table))
+        scope += 1
 
     elif symbol_action == 10:  # remove_scope
         compiler.create_symbol_table_file()
         # scanner.NewSymbolTable.remove_scope()
         scope_stack.pop()
         compiler.create_symbol_table_file()
+        scope -= 1
 
     elif symbol_action == 35:  # return expression
         function_symbol = scanner.NewSymbolTable.get_row_by_address(current_function)
@@ -243,6 +250,7 @@ def action_routine(symbol_action):
         pop_semantic_stack(1)
         pb.append(generate_code("JP", f'@{function_symbol.return_address}'))
         i += 1
+
     elif symbol_action == 34:  # return
         function_symbol = scanner.NewSymbolTable.get_row_by_address(current_function)
         pop_semantic_stack(1)
@@ -256,5 +264,10 @@ def action_routine(symbol_action):
             arg_num += 1
             i += 1
             pop_semantic_stack(1)
+
     elif symbol_action == 1:  # arg
         pb[0] = generate_code("JP", scanner.NewSymbolTable.find_main_address())
+
+    elif symbol_action == 75:  # add_to_symbol_table
+        lexeme = parser.top_token[1]
+        scanner.NewSymbolTable(lexeme, scope)

@@ -41,7 +41,7 @@ class NewSymbolTable:
     symbol_table = []
     empty_address = 100
 
-    def __init__(self, lexeme):
+    def __init__(self, lexeme, scope):
         self.lexeme = lexeme
         self.address = NewSymbolTable.empty_address
         self.type = None
@@ -51,6 +51,7 @@ class NewSymbolTable:
         self.return_address = None
         self.return_value = None
         self.start_address = None
+        self.scope = scope
         NewSymbolTable.empty_address += self.size
 
         NewSymbolTable.symbol_table.append(self)
@@ -71,6 +72,15 @@ class NewSymbolTable:
             symbol = NewSymbolTable.symbol_table[i]
             if symbol.lexeme == lexeme:
                 return symbol.address
+
+        return None
+
+    @staticmethod
+    def get_scope(lexeme):
+        for i in range(len(NewSymbolTable.symbol_table) - 1, -1, -1):
+            symbol = NewSymbolTable.symbol_table[i]
+            if symbol.lexeme == lexeme:
+                return symbol.scope
 
         return None
 
@@ -121,8 +131,12 @@ class NewSymbolTable:
 
     @staticmethod
     def remove_scope():
-        second_last_scope = code_gen.scope_stack[-1]
-        NewSymbolTable.symbol_table = NewSymbolTable.symbol_table[:second_last_scope]
+        last_scope = code_gen.scope_stack[-1]
+        NewSymbolTable.symbol_table = NewSymbolTable.symbol_table[:last_scope]
+
+    @staticmethod
+    def get_current_scope_symbols():
+        return NewSymbolTable.symbol_table[code_gen.scope_stack[-1]:]
 
 
 class State:
@@ -336,11 +350,11 @@ def handle_output_token(current_token, lexeme):
 
 def add_to_symbol_table(lexeme):
     global symbol_table_set, symbol_table
-    current_scope_lexemes = [symbol.lexeme for symbol in NewSymbolTable.symbol_table[code_gen.scope_stack[-1]:]]
+    current_scope_lexemes = [symbol.lexeme for symbol in NewSymbolTable.get_current_scope_symbols()]
     if lexeme not in current_scope_lexemes and lexeme not in keywords and lexeme not in NewSymbolTable.get_functions():
         symbol_table.append(lexeme)
         symbol_table_set.add(lexeme)
-        NewSymbolTable(lexeme)
+        # NewSymbolTable(lexeme, code_gen.scope)
 
 
 def add_to_dict(dictionary, key, value):
