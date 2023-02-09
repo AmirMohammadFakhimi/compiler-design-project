@@ -12,9 +12,11 @@
 12       endif          
 11       result          int        100        array      0        0       
 12       f               int        300        func       2        0       
-13       a               int        304        array      0        1       
-14       count           None       308        None       0        1       
-15       main            void       312        func       0        0       
-16       i               int        316        int        0        1       
-17       count           None       320        None       0        1       
-18       output          None       324        None       0        1       
+13       a               int        304        int        0        1       
+14       result          int        308        array      0        1       
+15       count           None       312        None       0        1       
+16       main            void       316        func       0        0       
+17       i               int        320        int        0        1       
+18       result          int        324        array      0        1       
+19       count           None       328        None       0        1       
+20       output          None       332        None       0        1       

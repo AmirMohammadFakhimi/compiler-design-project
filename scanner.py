@@ -92,7 +92,6 @@ class NewSymbolTable:
                 res.append(symbol.lexeme)
         return res
 
-
     @staticmethod
     def add_kind_to_last_symbol(kind):
         NewSymbolTable.symbol_table[-1].kind = kind
@@ -139,6 +138,12 @@ class NewSymbolTable:
         return NewSymbolTable.symbol_table[code_gen.scope_stack[-1]:]
 
     @staticmethod
+    def get_global_symbol(lexeme):
+        for symbol in NewSymbolTable.symbol_table:
+            if symbol.lexeme == lexeme and symbol.scope == 0:
+                return symbol
+        return None
+    @staticmethod
     def get_current_and_prev_scope_symbols():
         res = NewSymbolTable.symbol_table[code_gen.scope_stack[-1]:]
         for symbol in NewSymbolTable.symbol_table:
@@ -148,7 +153,7 @@ class NewSymbolTable:
 
     @staticmethod
     def index_of_last_arg():
-        for i in range(len(NewSymbolTable.symbol_table)-1 , -1 , -1):
+        for i in range(len(NewSymbolTable.symbol_table) - 1, -1, -1):
             if NewSymbolTable.symbol_table[i].kind == 'func':
                 return i + NewSymbolTable.symbol_table[i].no_of_args
         return -1
@@ -365,16 +370,15 @@ def handle_output_token(current_token, lexeme):
 
 def add_to_symbol_table(lexeme):
     global symbol_table_set, symbol_table
-    if lexeme == 'result':
-        print('meow')
-    if NewSymbolTable.index_of_last_arg() >= len(NewSymbolTable.symbol_table):
-        current_scope_lexemes = [symbol.lexeme for symbol in NewSymbolTable.get_current_scope_symbols()]
-    else:
-        current_scope_lexemes = [symbol.lexeme for symbol in NewSymbolTable.get_current_and_prev_scope_symbols()]
+    current_scope_lexemes = [symbol.lexeme for symbol in NewSymbolTable.get_current_scope_symbols()]
     if lexeme not in current_scope_lexemes and lexeme not in keywords and lexeme not in NewSymbolTable.get_functions():
+        global_symbol = NewSymbolTable.get_global_symbol(lexeme)
         symbol_table.append(lexeme)
         symbol_table_set.add(lexeme)
         NewSymbolTable(lexeme, code_gen.scope)
+        if global_symbol is not None:
+            NewSymbolTable.add_kind_to_last_symbol(global_symbol.kind)
+            NewSymbolTable.add_type_to_last_symbol(global_symbol.type)
 
 
 def add_to_dict(dictionary, key, value):
