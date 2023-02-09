@@ -69,11 +69,14 @@ def create_parse_tree_file():
 def create_pb_file():
     pb_file = open("output.txt", 'w')
     pb = code_gen.pb
+    if len(code_gen.semantic_errors) != 0:
+        pb_file.write('The code has not been generated.')
 
-    line_number = 0
-    for line in pb:
-        pb_file.write(f'{line_number}\t{line}\n')
-        line_number += 1
+    else:
+        line_number = 0
+        for line in pb:
+            pb_file.write(f'{line_number}\t{line}\n')
+            line_number += 1
 
 
 def create_semantic_errors_file():
@@ -84,7 +87,7 @@ def create_semantic_errors_file():
         semantic_errors_file.write("The input program is semantically correct")
     else:
         for error in semantic_errors:
-            semantic_errors_file.write(f'#{scanner.number_of_line} : {error}\n')
+            semantic_errors_file.write(f'{error}\n')
 
 
 def reset_compiler():

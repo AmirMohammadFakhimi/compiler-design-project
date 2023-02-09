@@ -26,7 +26,7 @@ void main(void) {
     while (i < 49) {
         result[i] = 0;
         i = i + result;
-    } 
+    }
     count = 0;
     output(f(40, result));
     output(count);

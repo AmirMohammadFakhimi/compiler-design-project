@@ -24,12 +24,28 @@ def reset_code_gen():
     temp_addr = 500
 
 
-def check_mismatch_oprand(op1, op2):
+def check_mismatch_operand(op1, op2):
     symbol1 = scanner.NewSymbolTable.get_row_by_address(op1)
     symbol2 = scanner.NewSymbolTable.get_row_by_address(op2)
-    if symbol1.type != symbol2.type:
+    sk1 = 'int' if symbol1 is None else symbol1.kind
+    sk2 = 'int' if symbol2 is None else symbol2.kind
+    if type(op1) is int and type(op2) is int and sk1 != sk2:
         semantic_errors.append(
-            f'#{scanner.number_of_line} : Semantic Error! Type mismatch in operands, Got {symbol2.type} instead of {symbol1.type}.')
+            f'#{scanner.number_of_line} : Semantic Error! Type mismatch in operands, Got {sk1} instead of {sk2}.')
+
+
+def check_mismatch_arg(input_arg, func_arg, func_name):
+    global arg_num
+    symbol_input_arg_type = scanner.NewSymbolTable.get_row_by_address(input_arg)
+    if symbol_input_arg_type is not None:
+        symbol_input_arg_type = symbol_input_arg_type.kind
+    else:
+        symbol_input_arg_type = 'int'
+    symbol_func_arg_type = scanner.NewSymbolTable.get_row_by_address(func_arg).kind
+    if symbol_input_arg_type != symbol_func_arg_type:
+        semantic_errors.append(
+            f'#{scanner.number_of_line} : Semantic Error! Mismatch in type of argument {arg_num} of \'{func_name}\'.'
+            f' Expected \'{symbol_func_arg_type}\' but got \'{symbol_input_arg_type}\' instead.')
 
 
 def generate_code(op, first_op, second_op="", third_op=""):
@@ -63,10 +79,10 @@ def action_routine(symbol_action):
     if symbol_action == 64:  # pid
         current_input = parser.top_token[1]
         p = getaddr(current_input)
-        if scanner.NewSymbolTable.get_row_by_address(p).type is None:
-            semantic_errors.append(f"Semantic Error! '{current_input}' is not defined.")
-        else:
-            semantic_stack.append(p)
+        if scanner.NewSymbolTable.get_row_by_address(p).type is None and current_input != "output":
+            semantic_errors.append(f"#{scanner.number_of_line} : Semantic Error! '{current_input}' is not defined.")
+
+        semantic_stack.append(p)
 
     elif symbol_action == 65:  # pnum
         current_input = parser.top_token[1]
@@ -78,6 +94,7 @@ def action_routine(symbol_action):
         pop_semantic_stack(1)
 
     elif symbol_action == 49:  # add
+        check_mismatch_operand(semantic_stack[-1], semantic_stack[-2])
         t = gettemp()
         pb.append(generate_code("ADD", semantic_stack[-1], semantic_stack[-2], t))
         i += 1
@@ -85,6 +102,7 @@ def action_routine(symbol_action):
         semantic_stack.append(t)
 
     elif symbol_action == 51:  # sub
+        check_mismatch_operand(semantic_stack[-1], semantic_stack[-2])
         t = gettemp()
         pb.append(generate_code("SUB", semantic_stack[-2], semantic_stack[-1], t))
         i += 1
@@ -92,6 +110,7 @@ def action_routine(symbol_action):
         semantic_stack.append(t)
 
     elif symbol_action == 52:  # mul
+        check_mismatch_operand(semantic_stack[-1], semantic_stack[-2])
         t = gettemp()
         pb.append(generate_code("MULT", semantic_stack[-1], semantic_stack[-2], t))
         i += 1
@@ -99,6 +118,7 @@ def action_routine(symbol_action):
         semantic_stack.append(t)
 
     elif symbol_action == 54:  # div
+        check_mismatch_operand(semantic_stack[-1], semantic_stack[-2])
         t = gettemp()
         pb.append(generate_code("DIV", semantic_stack[-2], semantic_stack[-1], t))
         i += 1
@@ -137,6 +157,7 @@ def action_routine(symbol_action):
         pop_semantic_stack(3)
 
     elif symbol_action == 48:  # equal
+        check_mismatch_operand(semantic_stack[-1], semantic_stack[-2])
         t = gettemp()
         pb.append(generate_code("EQ", semantic_stack[-1], semantic_stack[-2], t))
         i += 1
@@ -144,6 +165,7 @@ def action_routine(symbol_action):
         semantic_stack.append(t)
 
     elif symbol_action == 46:  # lt
+        check_mismatch_operand(semantic_stack[-1], semantic_stack[-2])
         t = gettemp()
         pb.append(generate_code("LT", semantic_stack[-2], semantic_stack[-1], t))
         i += 1
@@ -167,7 +189,7 @@ def action_routine(symbol_action):
     elif symbol_action == 29:  # break action
         if len(break_s) == 0:
             semantic_errors.append(
-                f'#{scanner.number_of_line} : Semantic Error! No \'while\' or \'switch case\' found for \'break\'.')
+                f'#{scanner.number_of_line - 1} : Semantic Error! No \'while\' or \'switch case\' found for \'break\'.')
         else:
             pb.append(generate_code("JP", break_s[-1]))
             i += 1
@@ -191,9 +213,9 @@ def action_routine(symbol_action):
     elif symbol_action == 59:  # call
         function_symbol = scanner.NewSymbolTable.get_row_by_address(semantic_stack[-1])
         if function_symbol is not None and function_symbol.kind == 'func':
-            if arg_num != function_symbol.no_of_args:
+            if arg_num - 1 != function_symbol.no_of_args:
                 semantic_errors.append(
-                    f'#{scanner.number_of_line}: semantic error! Mismatch in numbers of arguments of \'{function_symbol.lexeme}\'')
+                    f'#{scanner.number_of_line} : Semantic Error! Mismatch in numbers of arguments of \'{function_symbol.lexeme}\'.')
             arg_num = 1
             pb.append(generate_code("ASSIGN", f'#{i + 2}', function_symbol.return_address))
             i += 1
@@ -214,9 +236,6 @@ def action_routine(symbol_action):
         scanner.NewSymbolTable.add_type_to_last_symbol("int")
 
     elif symbol_action == 9:  # void_type
-        if scanner.NewSymbolTable.symbol_table[-1].kind in ['var', 'arr']:
-            semantic_errors.append(
-                f'# {scanner.number_of_line} : Semantic Error! Illegal type of void for \'{scanner.NewSymbolTable.symbol_table[-1].lexeme}\'.')
         scanner.NewSymbolTable.add_type_to_last_symbol("void")
 
 
@@ -227,15 +246,19 @@ def action_routine(symbol_action):
 
     elif symbol_action == 72:  # add_array_type_kind
         scanner.NewSymbolTable.add_size_to_last_symbol_array(int(semantic_stack[-1][1:]))
-        scanner.NewSymbolTable.add_kind_to_last_symbol("arr")
+        scanner.NewSymbolTable.add_kind_to_last_symbol("array")
         pop_semantic_stack(1)
 
     elif symbol_action == 6:  # add_var_kind
-        scanner.NewSymbolTable.add_kind_to_last_symbol("var")
+        scanner.NewSymbolTable.add_kind_to_last_symbol("int")
+        if scanner.NewSymbolTable.symbol_table[-1].type == 'void':
+            semantic_errors.append(
+                f'#{scanner.number_of_line - 1} : Semantic Error! Illegal type of void for \'{scanner.NewSymbolTable.symbol_table[-1].lexeme}\'.')
+
         pop_semantic_stack(1)
 
     elif symbol_action == 15:  # add_var_kind_args
-        scanner.NewSymbolTable.add_kind_to_last_symbol("var")
+        scanner.NewSymbolTable.add_kind_to_last_symbol("int")
         pop_semantic_stack(1)
 
     elif symbol_action == 73:  # add_func_kind
@@ -248,7 +271,7 @@ def action_routine(symbol_action):
 
 
     elif symbol_action == 16:  # add_arr_kind_args
-        scanner.NewSymbolTable.add_kind_to_last_symbol("arr")
+        scanner.NewSymbolTable.add_kind_to_last_symbol("array")
         pop_semantic_stack(1)
 
     elif symbol_action in [13, 14]:  # add_one_arg
@@ -282,6 +305,7 @@ def action_routine(symbol_action):
     elif symbol_action in [62, 63]:  # arg
         function_symbol = scanner.NewSymbolTable.get_row_by_address(semantic_stack[-2])
         if function_symbol.lexeme != "output":
+            check_mismatch_arg(semantic_stack[-1], function_symbol.address + arg_num * 4, function_symbol.lexeme)
             pb.append(generate_code("ASSIGN", semantic_stack[-1], function_symbol.address + arg_num * 4))
             arg_num += 1
             i += 1

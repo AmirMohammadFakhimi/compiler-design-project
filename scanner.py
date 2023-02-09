@@ -138,6 +138,21 @@ class NewSymbolTable:
     def get_current_scope_symbols():
         return NewSymbolTable.symbol_table[code_gen.scope_stack[-1]:]
 
+    @staticmethod
+    def get_current_and_prev_scope_symbols():
+        res = NewSymbolTable.symbol_table[code_gen.scope_stack[-1]:]
+        for symbol in NewSymbolTable.symbol_table:
+            if symbol.scope < code_gen.scope:
+                res.append(symbol)
+        return res
+
+    @staticmethod
+    def index_of_last_arg():
+        for i in range(len(NewSymbolTable.symbol_table)-1 , -1 , -1):
+            if NewSymbolTable.symbol_table[i].kind == 'func':
+                return i + NewSymbolTable.symbol_table[i].no_of_args
+        return -1
+
 
 class State:
     start_state = None
@@ -350,7 +365,12 @@ def handle_output_token(current_token, lexeme):
 
 def add_to_symbol_table(lexeme):
     global symbol_table_set, symbol_table
-    current_scope_lexemes = [symbol.lexeme for symbol in NewSymbolTable.get_current_scope_symbols()]
+    if lexeme == 'result':
+        print('meow')
+    if NewSymbolTable.index_of_last_arg() >= len(NewSymbolTable.symbol_table):
+        current_scope_lexemes = [symbol.lexeme for symbol in NewSymbolTable.get_current_scope_symbols()]
+    else:
+        current_scope_lexemes = [symbol.lexeme for symbol in NewSymbolTable.get_current_and_prev_scope_symbols()]
     if lexeme not in current_scope_lexemes and lexeme not in keywords and lexeme not in NewSymbolTable.get_functions():
         symbol_table.append(lexeme)
         symbol_table_set.add(lexeme)
