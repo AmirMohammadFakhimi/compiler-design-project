@@ -78,6 +78,12 @@ class NewSymbolTable:
         NewSymbolTable.symbol_table[-1].kind = kind
 
     @staticmethod
+    def find_main_address():
+        for symbol in NewSymbolTable.symbol_table:
+            if symbol.lexeme == 'main' and symbol.kind == 'func' and symbol.type == 'void':
+                return symbol.start_address
+
+    @staticmethod
     def set_return_address_to_last_symbol(return_address):
         NewSymbolTable.symbol_table[-1].return_address = return_address
 

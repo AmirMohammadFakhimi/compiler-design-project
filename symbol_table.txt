@@ -10,4 +10,5 @@
 10       case           
 11       return         
 12       endif          
-11       a               int        100        func       0       
+11       abs             int        100        func       1       
+12       a               int        104        var        0       

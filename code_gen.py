@@ -5,12 +5,14 @@ import scanner
 break_s = []
 semantic_stack = []
 semantic_errors = []
-pb = []
-i = 0
+pb = [""]
+i = 1
 temp_addr = 500
 return_addresses = []
 scope_stack = [0]
 scope = 0
+current_function = None
+arg_num = 1
 
 
 def reset_code_gen():
@@ -43,9 +45,12 @@ def gettemp():
 
 
 def action_routine(symbol_action):
-    global i, scope, scope_stack
+    global i, scope, scope_stack, current_function, arg_num
     print(semantic_stack)
     symbol_action = int(symbol_action)
+
+    if i == 16:
+        print('meow')
     if symbol_action == 64:  # pid
         current_input = parser.top_token[1]
         p = getaddr(current_input)
@@ -144,7 +149,7 @@ def action_routine(symbol_action):
         semantic_stack.append(f'@{t2}')
         i += 2
 
-    elif symbol_action in [7,28]:  # pop
+    elif symbol_action in [7, 28]:  # pop
         semantic_stack.pop()
 
     elif symbol_action == 29:  # break action
@@ -167,11 +172,21 @@ def action_routine(symbol_action):
         pb.append(generate_code("JP", i + 2))
         i = i + 1
 
-    elif symbol_action == 59:  # output
-        pb.append(generate_code("PRINT", semantic_stack[-1]))
-        pop_semantic_stack(1)
-        pop_semantic_stack(1)
-        i = i + 1
+    elif symbol_action == 59:  # call
+        arg_num = 1
+        function_symbol = scanner.NewSymbolTable.get_row_by_address(semantic_stack[-1])
+        if function_symbol.kind == 'func':
+            pb.append(generate_code("ASSIGN", f'#{i + 2}', function_symbol.return_address))
+            i += 1
+            pb.append(generate_code("JP", function_symbol.start_address))
+            i += 1
+            pop_semantic_stack(1)
+            semantic_stack.append(function_symbol.return_value)
+        else:
+            pb.append(generate_code("PRINT", semantic_stack[-1]))
+            i += 1
+            pop_semantic_stack(1)
+
 
     elif symbol_action == 8:  # int_type
         scanner.NewSymbolTable.add_type_to_last_symbol("int")
@@ -202,6 +217,9 @@ def action_routine(symbol_action):
         scanner.NewSymbolTable.set_return_address_to_last_symbol(gettemp())
         scanner.NewSymbolTable.set_return_value_to_last_symbol(gettemp())
         scanner.NewSymbolTable.set_start_address_to_last_symbol(i)
+        current_function = scanner.NewSymbolTable.symbol_table[-1].address
+        pop_semantic_stack(1)
+
 
     elif symbol_action == 16:  # add_arr_kind_args
         scanner.NewSymbolTable.add_kind_to_last_symbol("arr")
@@ -220,14 +238,24 @@ def action_routine(symbol_action):
         compiler.create_symbol_table_file()
 
     elif symbol_action == 35:  # return expression
-        function_symbol = scanner.NewSymbolTable.get_row_by_address(semantic_stack[-2])
+        function_symbol = scanner.NewSymbolTable.get_row_by_address(current_function)
         pb.append(generate_code("ASSIGN", semantic_stack[-1], function_symbol.return_value))
         i += 1
-        pop_semantic_stack(2)
-        pb.append(generate_code("JP", f'@{function_symbol.return_address}'))
-        i += 1
-    elif symbol_action == 34:  # return
-        function_symbol = scanner.NewSymbolTable.get_row_by_address(semantic_stack[-1])
         pop_semantic_stack(1)
         pb.append(generate_code("JP", f'@{function_symbol.return_address}'))
         i += 1
+    elif symbol_action == 34:  # return
+        function_symbol = scanner.NewSymbolTable.get_row_by_address(current_function)
+        pop_semantic_stack(1)
+        pb.append(generate_code("JP", f'@{function_symbol.return_address}'))
+        i += 1
+
+    elif symbol_action in [62, 63]:  # arg
+        function_symbol = scanner.NewSymbolTable.get_row_by_address(semantic_stack[-2])
+        if function_symbol.lexeme != "output":
+            pb.append(generate_code("ASSIGN", semantic_stack[-1], function_symbol.address + arg_num * 4))
+            arg_num += 1
+            i += 1
+            pop_semantic_stack(1)
+    elif symbol_action == 1:  # arg
+        pb[0] = generate_code("JP", scanner.NewSymbolTable.find_main_address())

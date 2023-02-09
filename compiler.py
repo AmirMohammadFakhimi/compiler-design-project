@@ -11,13 +11,9 @@ def create_files_for_scanner_phase():
     create_file_from_dict(open("lexical_errors.txt", 'w'), scanner.errors, "There is no lexical error.")
 
 
-m = 0
-
 
 def create_symbol_table_file():
-    global m
-    m += 1
-    symbol_table_file = open(f'symbol_table{m}.txt', 'w')
+    symbol_table_file = open('symbol_table.txt', 'w')
     symbol_table = scanner.NewSymbolTable.symbol_table
 
     symbol_table_file.write(
