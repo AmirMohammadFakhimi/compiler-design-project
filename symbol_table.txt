@@ -1,4 +1,4 @@
-         lexeme          type       address    kind       no_args 
+         lexeme          type       address    kind       no_args  scope   
 2        if             
 3        else           
 4        void           
@@ -10,7 +10,7 @@
 10       case           
 11       return         
 12       endif          
-11       main            int        100        func       0       
-12       arr             int        104        arr        0       
-13       i               int        124        var        0       
-14       output          None       128        None       0       
+11       main            int        100        func       0        0       
+12       arr             int        104        arr        0        1       
+13       i               int        124        var        0        1       
+14       output          None       128        None       0        1       

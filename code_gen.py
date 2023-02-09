@@ -24,6 +24,14 @@ def reset_code_gen():
     temp_addr = 500
 
 
+def check_mismatch_oprand(op1, op2):
+    symbol1 = scanner.NewSymbolTable.get_row_by_address(op1)
+    symbol2 = scanner.NewSymbolTable.get_row_by_address(op2)
+    if symbol1.type != symbol2.type:
+        semantic_errors.append(
+            f'#{scanner.number_of_line} : Semantic Error! Type mismatch in operands, Got {symbol2.type} instead of {symbol1.type}.')
+
+
 def generate_code(op, first_op, second_op="", third_op=""):
     return f'({op}, {first_op}, {second_op}, {third_op})'
 
@@ -154,8 +162,12 @@ def action_routine(symbol_action):
         semantic_stack.pop()
 
     elif symbol_action == 29:  # break action
-        pb.append(generate_code("JP", break_s[-1]))
-        i += 1
+        if len(break_s) == 0:
+            semantic_errors.append(
+                f'#{scanner.number_of_line} : Semantic Error! No \'while\' or \'switch case\' found for \'break\'.')
+        else:
+            pb.append(generate_code("JP", break_s[-1]))
+            i += 1
 
     elif symbol_action == 69:  # switch_compare
         temp = gettemp()
@@ -174,9 +186,12 @@ def action_routine(symbol_action):
         i = i + 1
 
     elif symbol_action == 59:  # call
-        arg_num = 1
         function_symbol = scanner.NewSymbolTable.get_row_by_address(semantic_stack[-1])
         if function_symbol is not None and function_symbol.kind == 'func':
+            if arg_num != function_symbol.no_of_args:
+                semantic_errors.append(
+                    f'#{scanner.number_of_line}: semantic error! Mismatch in numbers of arguments of \'{function_symbol.lexeme}\'')
+            arg_num = 1
             pb.append(generate_code("ASSIGN", f'#{i + 2}', function_symbol.return_address))
             i += 1
             pb.append(generate_code("JP", function_symbol.start_address))
@@ -196,7 +211,11 @@ def action_routine(symbol_action):
         scanner.NewSymbolTable.add_type_to_last_symbol("int")
 
     elif symbol_action == 9:  # void_type
+        if scanner.NewSymbolTable.symbol_table[-1].kind in ['var', 'arr']:
+            semantic_errors.append(
+                f'# {scanner.number_of_line} : Semantic Error! Illegal type of void for \'{scanner.NewSymbolTable.symbol_table[-1].lexeme}\'.')
         scanner.NewSymbolTable.add_type_to_last_symbol("void")
+
 
     elif symbol_action == 71:  # break_save
         break_s.append(i)

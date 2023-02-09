@@ -354,7 +354,7 @@ def add_to_symbol_table(lexeme):
     if lexeme not in current_scope_lexemes and lexeme not in keywords and lexeme not in NewSymbolTable.get_functions():
         symbol_table.append(lexeme)
         symbol_table_set.add(lexeme)
-        # NewSymbolTable(lexeme, code_gen.scope)
+        NewSymbolTable(lexeme, code_gen.scope)
 
 
 def add_to_dict(dictionary, key, value):
