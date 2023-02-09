@@ -90,7 +90,7 @@ class NewSymbolTable:
     @staticmethod
     def find_main_address():
         for symbol in NewSymbolTable.symbol_table:
-            if symbol.lexeme == 'main' and symbol.kind == 'func' and symbol.type == 'void':
+            if symbol.lexeme == 'main' and symbol.kind == 'func':
                 return symbol.start_address
 
     @staticmethod

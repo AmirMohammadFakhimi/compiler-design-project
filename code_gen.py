@@ -46,11 +46,7 @@ def gettemp():
 
 def action_routine(symbol_action):
     global i, scope, scope_stack, current_function, arg_num
-    print(semantic_stack)
     symbol_action = int(symbol_action)
-
-    if i == 16:
-        print('meow')
     if symbol_action == 64:  # pid
         current_input = parser.top_token[1]
         p = getaddr(current_input)
@@ -175,13 +171,16 @@ def action_routine(symbol_action):
     elif symbol_action == 59:  # call
         arg_num = 1
         function_symbol = scanner.NewSymbolTable.get_row_by_address(semantic_stack[-1])
-        if function_symbol.kind == 'func':
+        if function_symbol is not None and function_symbol.kind == 'func':
             pb.append(generate_code("ASSIGN", f'#{i + 2}', function_symbol.return_address))
             i += 1
             pb.append(generate_code("JP", function_symbol.start_address))
             i += 1
             pop_semantic_stack(1)
-            semantic_stack.append(function_symbol.return_value)
+            t = gettemp()
+            pb.append(generate_code("ASSIGN", function_symbol.return_value, t))
+            i += 1
+            semantic_stack.append(t)
         else:
             pb.append(generate_code("PRINT", semantic_stack[-1]))
             i += 1
