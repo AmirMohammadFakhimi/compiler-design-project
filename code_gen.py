@@ -43,11 +43,11 @@ def pop_semantic_stack(num):
 
 
 def getaddr(inpt):
-    inpt_scope = scanner.NewSymbolTable.get_scope(inpt)
-    if inpt in [symbol.lexeme for symbol in scanner.NewSymbolTable.get_current_scope_symbols()] or inpt_scope < scope:
-        return scanner.NewSymbolTable.get_address(inpt)
-    else:
-        semantic_errors.append(f"Semantic Error! '{inpt}' is not defined.")
+    # inpt_scope = scanner.NewSymbolTable.get_scope(inpt)
+    # if inpt in [symbol.lexeme for symbol in scanner.NewSymbolTable.get_current_scope_symbols()] or inpt_scope < scope:
+    return scanner.NewSymbolTable.get_address(inpt)
+    # else:
+    #     semantic_errors.append(f"Semantic Error! '{inpt}' is not defined.")
 
 
 def gettemp():
@@ -63,7 +63,10 @@ def action_routine(symbol_action):
     if symbol_action == 64:  # pid
         current_input = parser.top_token[1]
         p = getaddr(current_input)
-        semantic_stack.append(p)
+        if scanner.NewSymbolTable.get_row_by_address(p).type is None:
+            semantic_errors.append(f"Semantic Error! '{current_input}' is not defined.")
+        else:
+            semantic_stack.append(p)
 
     elif symbol_action == 65:  # pnum
         current_input = parser.top_token[1]
