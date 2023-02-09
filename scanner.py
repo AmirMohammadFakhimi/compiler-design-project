@@ -67,11 +67,21 @@ class NewSymbolTable:
 
     @staticmethod
     def get_address(lexeme):
-        for symbol in NewSymbolTable.symbol_table:
+        for i in range(len(NewSymbolTable.symbol_table) - 1, -1, -1):
+            symbol = NewSymbolTable.symbol_table[i]
             if symbol.lexeme == lexeme:
                 return symbol.address
 
         return None
+
+    @staticmethod
+    def get_functions():
+        res = []
+        for symbol in NewSymbolTable.symbol_table:
+            if symbol.kind == 'func':
+                res.append(symbol.lexeme)
+        return res
+
 
     @staticmethod
     def add_kind_to_last_symbol(kind):
@@ -327,7 +337,7 @@ def handle_output_token(current_token, lexeme):
 def add_to_symbol_table(lexeme):
     global symbol_table_set, symbol_table
     current_scope_lexemes = [symbol.lexeme for symbol in NewSymbolTable.symbol_table[code_gen.scope_stack[-1]:]]
-    if lexeme not in current_scope_lexemes and lexeme not in keywords:
+    if lexeme not in current_scope_lexemes and lexeme not in keywords and lexeme not in NewSymbolTable.get_functions():
         symbol_table.append(lexeme)
         symbol_table_set.add(lexeme)
         NewSymbolTable(lexeme)

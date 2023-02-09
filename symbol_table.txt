@@ -12,3 +12,14 @@
 12       endif          
 11       abs             int        100        func       1       
 12       a               int        104        var        0       
+13       isMultiplier    int        108        func       2       
+14       a               int        112        var        0       
+15       b               int        116        var        0       
+16       i               int        120        var        0       
+17       step            int        124        var        0       
+18       flag            int        128        var        0       
+19       main            void       132        func       0       
+20       i               int        136        var        0       
+21       j               int        140        var        0       
+22       sum             int        144        var        0       
+23       output          None       148        None       0       
